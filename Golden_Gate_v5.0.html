@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Golden Gate Designer (v4.4 Smart Logic)</title>
+<style>
+  :root{--line:#e5e7eb;--muted:#64748b;--ink:#0f172a;--brand:#2563eb;--bg:#f8fafc;--card:#ffffff;
+        --c1:#60a5fa; --c2:#fda4af; --c3:#34d399; --c4:#fbbf24; --c5:#a78bfa; --c6:#f472b6;}
+  *{box-sizing:border-box}
+  body{margin:0;font:14px system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg);padding:20px}
+  
+  .container{max-width:1200px;margin:0 auto}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.05)}
+  .box{border:1px solid var(--line);border-radius:8px;padding:12px;background:#fff;height:100%}
+  
+  .grid{display:grid;gap:16px}
+  .cols-2{grid-template-columns:1fr 1fr}
+  .cols-5{grid-template-columns:repeat(5,1fr)}
+  @media(max-width:900px){.cols-2,.cols-5{grid-template-columns:1fr}}
+  
+  .align-stretch { align-items: stretch; }
+  .col-flex { display: flex; flex-direction: column; height: 100%; }
+  
+  #gg-vector {
+    flex: 1; 
+    min-height: 140px; 
+    resize: vertical; 
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    margin-bottom: 0;
+  }
+
+  h3{margin:0 0 10px 0;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+  .section-title{font-size:18px;font-weight:700;margin-bottom:16px}
+  
+  label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:600}
+  input[type=text], input[type=number], select {
+    width:100%;border:1px solid var(--line);border-radius:6px;padding:8px;font-family:inherit;font-size:13px
+  }
+  
+  .btn{border:none;border-radius:6px;padding:8px 16px;background:var(--brand);color:#fff;cursor:pointer;font-weight:500;font-size:13px}
+  .btn:hover{opacity:0.9}
+  .btn:disabled{background:#ccc;cursor:not-allowed}
+  .btn.ghost{background:#f1f5f9;color:#334155}
+  .btn.sm{padding:4px 8px;font-size:11px}
+  .btn.xs{padding:2px 8px;font-size:11px;border-radius:4px;}
+  
+  .row{display:flex;gap:8px;align-items:center}
+  .end{justify-content:flex-end}
+  .aside{font-size:12px;color:var(--muted)}
+  
+  /* Insert Row */
+  .frag-row {
+    display: grid;
+    grid-template-columns: 70px 1fr 40px; 
+    gap: 8px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .frag-row textarea{
+      width: 100%;
+      border:1px solid var(--line);
+      border-radius:6px;
+      padding:8px;
+      font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+      height:80px;
+      min-height:80px;
+      font-size: 13px;
+  }
+  .frag-label { padding-top: 6px; font-weight: 700; font-size: 13px; color: var(--ink); }
+  .frag-body { display: flex; flex-direction: column; gap: 6px; }
+  .frag-actions { display: flex; flex-direction: column; gap: 4px; }
+  .frag-actions .btn { width: 100%; text-align: center; padding: 4px 0; background: #f1f5f9; color: #64748b; }
+  
+  .file-input-hidden { display: none; }
+  
+  /* Tables */
+  table { width:100%; border-collapse:collapse; font-size:13px; margin-top:5px; }
+  th { text-align:left; color:#000; font-weight:700; border-bottom:1px solid #e5e7eb; padding:8px 6px; white-space:nowrap; background:#fff; }
+  td { border-bottom:1px solid #f1f5f9; padding:8px 6px; vertical-align:middle; color:#334155; }
+  
+  .seq-cell { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; color:#0f172a; word-break:break-all; min-width:180px; }
+  .seq-mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; color:#0f172a; }
+
+  .s-clamp { color: #64748b; font-style: italic; }
+  .s-site  { text-decoration: underline; font-weight: 600; }
+  .s-oh    { font-weight: 800; color: #000; }
+  .s-core  { color: #334155; }
+  .s-spacer{ color: #d97706; font-weight: bold; }
+
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; white-space: nowrap; border: 1px solid transparent; }
+  .badge.ok { background:#dcfce7; color:#166534; border-color:#bbf7d0; }
+  .badge.warn { background:#fffbeb; color:#92400e; border-color:#fde68a; }
+  .badge.bad { background:#fef2f2; color:#b91c1c; border-color:#fecaca; }
+
+  .oh-chip { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 14px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); }
+  .swatch { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:4px; vertical-align:middle; }
+
+  canvas { display: block; margin: 0 auto; width: 100%; max-width: 850px; height: auto; }
+  #ggx-legend div { margin-bottom: 4px; }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="common_features.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <div class="card">
+    <div class="row" style="justify-content:space-between;margin-bottom:10px">
+      <div class="section-title" style="margin:0">Golden Gate Designer (v4.4 Smart Logic)</div>
+      <button class="btn ghost sm" id="btn-reset">Reset</button>
+    </div>
+
+    <div class="pane">
+      <div class="grid cols-2 align-stretch">
+        <div class="col-flex">
+          <label>Backbone / Vector Sequence</label>
+          <textarea id="gg-vector" placeholder=">pVector&#10;GGTCTC..."></textarea>
+          <div class="row end" style="margin-top:8px">
+             <input type="file" id="file-vector" class="file-input-hidden">
+             <button class="btn ghost sm" id="btn-vector-upload">Choose File</button>
+          </div>
+        </div>
+        <div class="col-flex">
+          <div class="row" style="justify-content:space-between; margin-bottom:10px;">
+            <label>Assembly plan (inserts in order, max 6)</label>
+            <button class="btn ghost xs" id="btn-flip-order">Flip order</button>
+          </div>
+          <div id="frag-list" style="flex:1;"></div>
+          <div class="row" style="margin-top:10px">
+              <button class="btn ghost sm" id="btn-add-insert">+ Add insert</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid cols-2" style="margin-top:16px; align-items:start">
+        <div class="box">
+          <div class="row" style="justify-content:space-between;align-items:center;">
+            <h3>Vector Preview</h3>
+            <div class="row" style="gap:4px"><span class="aside">Rotate</span><input type="range" id="gg-map-rotation" min="0" max="360" value="0" style="width:80px"></div>
+          </div>
+          <canvas id="gg-map-canvas" width="500" height="320"></canvas>
+          <div id="gg-map-stats" class="aside" style="text-align:center;margin-top:5px">Paste vector above</div>
+        </div>
+
+        <div class="box">
+          <h3>Assembly Settings</h3>
+          <div class="grid cols-2" style="margin-top:10px">
+             <div>
+               <label class="aside">Type IIS enzyme</label>
+               <select id="gg-enzyme-main">
+                 <option value="BsaI">BsaI (GGTCTC)</option>
+                 <option value="Esp3I">Esp3I (CGTCTC)</option>
+                 <option value="BbsI">BbsI (GAAGAC)</option>
+                 <option value="PaqCI">PaqCI (CACCTGC)</option>
+               </select>
+             </div>
+             <div>
+               <label class="aside">Type IIS enzyme (locked)</label>
+               <select id="gg-enzyme-locked" disabled>
+                 <option value="BsaI">BsaI (GGTCTC)</option>
+                 <option value="Esp3I">Esp3I</option>
+                 <option value="BbsI">BbsI</option>
+                 <option value="PaqCI">PaqCI</option>
+               </select>
+             </div>
+          </div>
+
+          <div class="grid cols-2" style="margin-top:10px">
+             <div style="grid-column: span 2">
+                <label class="aside">Vector backbone fragment</label>
+                <select id="gg-backbone-select" disabled>
+                   <option value="">Analyze vector first...</option>
+                </select>
+             </div>
+          </div>
+          
+          <div id="gg-enzyme-info" class="aside" style="margin-top:5px; color:var(--brand)"></div>
+
+          <div class="grid cols-5" style="margin-top:15px">
+             <div><label class="aside">Protective (5')</label><input type="number" id="gg-clamp" value="5" min="0"></div>
+             <div><label class="aside">Target Tm</label><input type="number" id="gg-tmTarget" value="60" step="0.5"></div>
+             <div><label class="aside">Conc (nM)</label><input type="number" id="gg-conc" value="500"></div>
+             <div><label class="aside">Na+ (mM)</label><input type="number" id="gg-na" value="50"></div>
+             <div><label class="aside">Mg++ (mM)</label><input type="number" id="gg-mg" value="0"></div>
+          </div>
+
+          <div class="row end" style="margin-top:20px; gap:10px">
+             <button class="btn" id="gg-run">Design Golden Gate Primers</button>
+             <button class="ghost btn" id="gg-clear">Clear</button>
+          </div>
+
+          <div class="row end" style="margin-top:10px; background:#f8fafc; padding:8px; border-radius:6px;">
+              <select id="gg-download-type" style="width:auto; border:1px solid #ddd;">
+                  <option value="primers">Download primer table</option>
+                  <option value="fasta">Download assembled plasmid</option>
+              </select>
+              <button class="ghost btn sm" id="gg-download-btn">Download</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="results-wrap" style="display:none; margin-top:16px" class="grid">
+        <div class="box" style="grid-column: 1 / -1">
+          <h3>Primer sets by insert</h3>
+          <div id="primer-table"></div>
+        </div>
+        <div class="grid cols-2">
+          <div class="box">
+             <div style="margin-bottom:20px; text-align:center; border-bottom:1px solid #eee; padding-bottom:15px;">
+                 <h3 style="text-align:left; margin-bottom:10px;">Assembled Diagram</h3>
+                 <img id="asm-img" src="" style="max-width:350px; width:100%; display:none; margin:0 auto;">
+                 <div id="asm-legend" class="aside" style="margin-top:8px;"></div>
+             </div>
+             <h3>Overhang Table</h3>
+             <div id="oh-table"></div>
+          </div>
+          <div class="box">
+            <h3>Simulated Gel</h3>
+            <div style="margin-top:5px; margin-bottom:10px;">
+                <label class="aside" style="display:inline-block; margin-right:5px;">Marker:</label>
+                <select id="ggx-ladder" style="width:auto; font-size:12px;">
+                    <option value="neb1kbplus">NEB 1kb Plus DNA Ladder</option>
+                    <option value="neb1kb">NEB 1kb DNA Ladder</option>
+                    <option value="thermo1kbruler">GeneRuler 1kb DNA Ladder</option>
+                    <option value="thermo1kbplus">GeneRuler 1kb Plus DNA Ladder</option>
+                </select>
+            </div>
+            <canvas id="gg-gel-canvas" width="850" height="640"></canvas>
+            <div id="ggx-legend" class="aside" style="margin-top:10px; line-height:1.6; color:#334155;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import * as CORE from './core.js';
+import * as VIZ from './bio_visuals.js';
+
+const ENZYMES = {
+  BsaI: { site:'GGTCTC',  rc:'GAGACC',  overhang:4, cutF:1, cutR:5 },
+  Esp3I:{ site:'CGTCTC',  rc:'GAGACG',  overhang:4, cutF:1, cutR:5 },
+  BbsI: { site:'GAAGAC',  rc:'GTCTTC',  overhang:4, cutF:2, cutR:6 },
+  PaqCI:{ site:'CACCTGC', rc:'GCAGGTG', overhang:4, cutF:4, cutR:8 }
+};
+
+const PROJECT = {
+    vector: { rawSeq: "", normSeq: "", name: "", enzyme: null, allFragments: [], selectedFrag: null, leftOverhang: "", rightOverhang: "" },
+    settings: { clamp: 5, tm: 60, na: 50, mg: 0, conc: 500 },
+    results: { primers: [], junctions: [], assembledSeq: "", assembledName: "" }
+};
+
+function analyzeVector() {
+    const raw = document.getElementById('gg-vector').value;
+    const seq = CORE.normalizeSeq(raw);
+    const len = seq.length;
+    const enzName = document.getElementById('gg-enzyme-main').value;
+    const enz = ENZYMES[enzName];
+
+    PROJECT.vector.rawSeq = raw; PROJECT.vector.normSeq = seq;
+    PROJECT.vector.name = CORE.extractFirstHeader(raw) || 'Vector';
+    PROJECT.vector.enzyme = enz;
+    PROJECT.vector.enzName = enzName;
+
+    document.getElementById('gg-enzyme-locked').value = enzName;
+    document.getElementById('gg-enzyme-info').innerText = `${enzName}: ${enz.site} (Overhang: ${enz.overhang}bp)`;
+
+    const sites = CORE.findTypeIISSites(seq, enz);
+    const ann = [];
+    sites.F.forEach(p => ann.push({ name: enzName, pos: p+1, color: '#ef4444', strand: '+' }));
+    sites.R.forEach(p => ann.push({ name: enzName, pos: p+1, color: '#ef4444', strand: '-' }));
+    if(window.COMMON_FEATURES) {
+        const feats = CORE.detectFeatures(seq, window.COMMON_FEATURES);
+        feats.forEach(f => ann.push({ ...f, isRegion: true }));
+    }
+    VIZ.drawVectorMap('gg-map-canvas', len, PROJECT.vector.name, ann, parseInt(document.getElementById('gg-map-rotation').value));
+    document.getElementById('gg-map-stats').innerText = `${len} bp | ${sites.F.length + sites.R.length} ${enzName} sites`;
+
+    const cuts = CORE.computeCutsTypeIIS(seq, enzName);
+    
+    let useCuts = cuts;
+    if (cuts.length === 0 && (sites.F.length + sites.R.length > 0)) {
+         const N = seq.length;
+         sites.F.forEach(i => useCuts.push({cutPos: (i + enz.site.length + enz.cutF + N) % N}));
+         sites.R.forEach(i => useCuts.push({cutPos: (i - enz.cutR + N) % N}));
+    }
+
+    const fragSelect = document.getElementById('gg-backbone-select');
+    fragSelect.innerHTML = '';
+
+    if(useCuts.length < 2) {
+        const opt = document.createElement('option'); opt.text = `Vector has ${useCuts.length} sites (Need ≥2)`; fragSelect.add(opt); fragSelect.disabled = true;
+        PROJECT.vector.allFragments = []; PROJECT.vector.selectedFrag = null; return;
+    }
+
+    const sortedCuts = useCuts.map(c => c.cutPos).sort((a,b) => a-b);
+    const fragments = [];
+    for(let i=0; i<sortedCuts.length; i++) {
+        const start = sortedCuts[i];
+        const end = sortedCuts[(i+1) % sortedCuts.length];
+        let len = end - start; if(len < 0) len += seq.length;
+        fragments.push({ id: i, start, end, len });
+    }
+
+    PROJECT.vector.allFragments = fragments;
+    let longestIdx = 0;
+    fragments.forEach((frag, i) => {
+        const opt = document.createElement('option'); opt.value = i; opt.text = `Fragment ${i+1}: ${frag.len} bp`;
+        if(frag.len > fragments[longestIdx].len) longestIdx = i;
+        fragSelect.add(opt);
+    });
+    fragSelect.value = longestIdx; fragSelect.disabled = false;
+    updateSelectedBackbone(); 
+}
+
+function updateSelectedBackbone() {
+    const idx = document.getElementById('gg-backbone-select').value;
+    if (idx === "") return;
+    
+    const frag = PROJECT.vector.allFragments[parseInt(idx)];
+    const enz = PROJECT.vector.enzyme;
+    const seq = PROJECT.vector.normSeq;
+    const N = seq.length;
+
+    const getS = (start, len) => { 
+        let str = ""; 
+        for(let k=0; k<len; k++) str += seq[(start + k) % N]; 
+        return str; 
+    };
+
+    PROJECT.vector.selectedFrag = frag;
+
+    // Vector 3' end (Junction 0) -> Insert 1 5'
+    let j0_idx = (frag.end - enz.overhang + N) % N;
+    PROJECT.vector.leftOverhang = getS(j0_idx, enz.overhang);
+
+    // Vector 5' end (Junction N) -> Insert N 3'
+    let jN_idx = frag.start;
+    PROJECT.vector.rightOverhang = getS(jN_idx, enz.overhang);
+}
+
+function runDesign() {
+    if (!PROJECT.vector.selectedFrag) { alert("Please analyze and select a vector backbone first."); return; }
+    
+    PROJECT.settings.clamp = parseInt(document.getElementById('gg-clamp').value) || 5;
+    PROJECT.settings.tm = parseFloat(document.getElementById('gg-tmTarget').value) || 60;
+    PROJECT.settings.na = parseFloat(document.getElementById('gg-na').value) || 50;
+    PROJECT.settings.mg = parseFloat(document.getElementById('gg-mg').value) || 0;
+    PROJECT.settings.conc = parseFloat(document.getElementById('gg-conc').value) || 500;
+    const settings = PROJECT.settings; 
+    const enz = PROJECT.vector.enzyme;
+
+    const frags = [];
+    document.querySelectorAll('.frag-row').forEach((row, i) => {
+       const raw = row.querySelector('.frag-seq').value;
+       const s = CORE.normalizeSeq(raw);
+       const name = CORE.extractFirstHeader(raw) || `Insert#${i+1}`;
+       if (s) frags.push({id: i+1, seq: s, name: name});
+    });
+    if (!frags.length) { alert("No inserts found."); return; }
+
+    const junctionOverhangs = []; 
+    const usedOH = new Set();     
+    const warnings = [];
+
+    const vecLeft = PROJECT.vector.leftOverhang;
+    junctionOverhangs.push(vecLeft);
+    usedOH.add(vecLeft);
+    usedOH.add(CORE.reverseComplementSeq(vecLeft)); 
+
+    const vecRight = PROJECT.vector.rightOverhang;
+    usedOH.add(vecRight);
+    usedOH.add(CORE.reverseComplementSeq(vecRight));
+
+    for (let i = 0; i < frags.length - 1; i++) {
+        const currFrag = frags[i];
+        const nextFrag = frags[i+1];
+        
+        const candTail = currFrag.seq.slice(currFrag.seq.length - 4);
+        const candHead = nextFrag.seq.slice(0, 4);
+        
+        let selected = null;
+
+        if (!usedOH.has(candTail) && !usedOH.has(CORE.reverseComplementSeq(candTail))) {
+            selected = candTail;
+        } else if (!usedOH.has(candHead) && !usedOH.has(CORE.reverseComplementSeq(candHead))) {
+            selected = candHead;
+        } else {
+            selected = candTail; 
+            warnings.push(`Warning: Junction between Insert ${i+1} & ${i+2} uses a non-unique overhang (${selected}). Risk of misassembly.`);
+        }
+
+        if (selected === CORE.reverseComplementSeq(selected)) {
+             warnings.push(`Warning: Junction ${i+1}-${i+2} overhang (${selected}) is palindromic. Low efficiency.`);
+        }
+
+        junctionOverhangs.push(selected);
+        usedOH.add(selected);
+        usedOH.add(CORE.reverseComplementSeq(selected));
+    }
+
+    junctionOverhangs.push(vecRight);
+
+    const designed = [];
+    const clampLen = settings.clamp;
+
+    frags.forEach((f, i) => {
+        const ohL = junctionOverhangs[i];      
+        const ohR = junctionOverhangs[i+1];    
+        
+        const spacerF = CORE.makeRandomSpacer(1);
+        const spacerR = CORE.makeRandomSpacer(1);
+        const clampF = CORE.makeSmartClamp(clampLen);
+        const clampR = CORE.makeSmartClamp(clampLen);
+
+        let fwdCore = ""; 
+        for (let l = 18; l < 35; l++) { 
+            fwdCore = f.seq.slice(0, l); 
+            if (CORE.tmcalNN(fwdCore, settings.na, settings.mg, settings.conc) >= settings.tm) break; 
+        }
+        
+        let revCore = ""; 
+        const rcSeq = CORE.reverseComplementSeq(f.seq); 
+        for (let l = 18; l < 35; l++) { 
+            revCore = rcSeq.slice(0, l); 
+            if (CORE.tmcalNN(revCore, settings.na, settings.mg, settings.conc) >= settings.tm) break; 
+        }
+
+        const fullF = clampF + enz.site + spacerF + ohL + fwdCore;
+        const fullR = clampR + enz.site + spacerR + CORE.reverseComplementSeq(ohR) + revCore;
+
+        const qcF = CORE.qcSinglePrimer(fullF, {Na_mM:settings.na, Mg_mM:settings.mg, conc_nM:settings.conc});
+        const qcR = CORE.qcSinglePrimer(fullR, {Na_mM:settings.na, Mg_mM:settings.mg, conc_nM:settings.conc});
+        const pairQC = CORE.qcPrimerPair(fullF, fullR, {Na_mM:settings.na, Mg_mM:settings.mg, conc_nM:settings.conc});
+        
+        const fwdTailLen = fullF.length - fwdCore.length;
+        const revTailLen = fullR.length - revCore.length;
+        const pcrLen = f.seq.length + fwdTailLen + revTailLen;
+
+        designed.push({
+            id: f.id, 
+            name: f.name, 
+            len: f.seq.length, 
+            pcrLen: pcrLen,    
+            fwd: {
+                name: `${f.name}-F`, 
+                seq: fullF, 
+                tmCore: CORE.tmcalNN(fwdCore, settings.na, settings.mg, settings.conc), 
+                tmFull: qcF.tm, 
+                qc: qcF, 
+                parts: { clamp: clampF, site: enz.site, spacer: spacerF, oh: ohL, core: fwdCore }
+            },
+            rev: {
+                name: `${f.name}-R`, 
+                seq: fullR, 
+                tmCore: CORE.tmcalNN(revCore, settings.na, settings.mg, settings.conc), 
+                tmFull: qcR.tm, 
+                qc: qcR, 
+                parts: { clamp: clampR, site: enz.site, spacer: spacerR, oh: CORE.reverseComplementSeq(ohR), core: revCore }
+            },
+            pairQC: pairQC,
+            ohL: ohL,
+            ohR: CORE.reverseComplementSeq(ohR) 
+        });
+    });
+
+    if (warnings.length > 0) {
+        alert("Design Warnings:\n" + warnings.join("\n"));
+    }
+
+    // Build Assembled Sequence
+    let backboneSeq = "";
+    const enzName = PROJECT.vector.enzName || document.getElementById('gg-enzyme-main').value;
+    const vOH = CORE.deriveTypeIISVectorOverhangs(PROJECT.vector.normSeq, enzName);
+
+    if (vOH && typeof vOH.cutL === "number" && typeof vOH.cutR === "number") {
+        // Legacy v3.3 logic: use longest fragment between adjacent Type IIS cuts
+        backboneSeq = CORE.subseqCircular(PROJECT.vector.normSeq, vOH.cutL, vOH.cutR);
+    } else if (PROJECT.vector.selectedFrag) {
+        // Fallback: use user-selected fragment coordinates
+        const bbFrag = PROJECT.vector.selectedFrag;
+        backboneSeq = CORE.subseqCircular(PROJECT.vector.normSeq, bbFrag.start, bbFrag.end);
+    } else {
+        backboneSeq = CORE.normalizeSeq(PROJECT.vector.normSeq);
+    }
+
+    const insertSeqCombined = frags.map(f => f.seq).join("");
+
+    PROJECT.results.assembledSeq = backboneSeq + insertSeqCombined;
+    PROJECT.results.assembledName = (PROJECT.vector.name || "Vector") + "_assembled";
+    PROJECT.results.primers = designed; 
+    PROJECT.results.junctions = junctionOverhangs;
+    
+    renderOutput();
+}
+
+// --- Renderer Helpers ---
+const PAL = ['var(--c1)','var(--c2)','var(--c3)','var(--c4)','var(--c5)','var(--c6)'];
+function badge(label, cls) { return `<span class="badge ${cls}">${label}</span>`; }
+function getQCBadge(qcObj, type) {
+    if(type==='hp'){ const d=qcObj.hairpin; if(!d||d.dG>-3)return badge("None","ok"); const c=CORE.classifyDG(d.dG,d.touches3); return badge(c.label,c.cls); }
+    if(type==='sd'){ const d=qcObj.selfDimer; if(!d||d.dG>-3)return badge("None","ok"); const c=CORE.classifyDG(d.dG,d.touches3); return badge(c.label,c.cls); }
+    if(type==='homo'){ return qcObj.homopolymer?badge("Yes","warn"):badge("OK","ok"); }
+}
+function formatSeq(p) { const pt=p.parts; return `<span class="s-clamp">${pt.clamp}</span><span class="s-site">${pt.site}</span><span class="s-spacer">${pt.spacer}</span><span class="s-oh">${pt.oh}</span><span class="s-core">${pt.core}</span>`; }
+
+function renderOutput() {
+    document.getElementById('results-wrap').style.display = 'grid';
+    const primers = PROJECT.results.primers;
+    const overhangs = PROJECT.results.junctions;
+
+    const k = primers.length;
+    const img = document.getElementById('asm-img');
+    if(k>=1 && k<=6) { img.src = `../Picture/Golden_Gate_I${k}.png`; img.style.display = 'block'; } else { img.style.display = 'none'; }
+    const legParts = [`<span class="swatch" style="background:#e2e8f0;border:1px solid #cbd5e1"></span> Vector`];
+    primers.forEach((p,i) => { const col = PAL[i % PAL.length]; legParts.push(`<span class="swatch" style="background:${col}"></span> ${p.name}`); });
+    document.getElementById('asm-legend').innerHTML = legParts.join(' &nbsp; ');
+
+    let h = "";
+    primers.forEach(p => {
+        const xd = p.pairQC.crossDimer;
+        const xInfo = xd ? CORE.classifyDG(xd.dG, xd.touches3) : {label:"None", cls:"ok"};
+        h += `<div class="box" style="margin-bottom:15px; border:1px solid #eee; padding:10px;">
+            <div style="font-weight:700; margin-bottom:8px; font-size:15px; color:#0f172a;">
+                Insert #${p.id} (${p.name}) 
+                <span class="aside" style="font-weight:normal; margin-left:10px;">Template: ${p.len} bp → PCR Product: <b>${p.pcrLen} bp</b></span>
+            </div>
+            <table><thead><tr style="background:#f1f5f9;"><th>Primer</th><th>Sequence (5'→3')</th><th>Len</th><th>GC%</th><th>Tm (core)</th><th>Tm (full)</th><th>Homo.</th><th>Hairpin</th><th>Self-dimer</th><th>Cross-dimer</th></tr></thead><tbody><tr><td style="font-weight:600">${p.fwd.name}</td><td class="seq-cell">${formatSeq(p.fwd)}</td><td>${p.fwd.seq.length}</td><td>${p.fwd.qc.gc.toFixed(1)}%</td><td>${p.fwd.tmCore.toFixed(2)}</td><td>${p.fwd.tmFull.toFixed(2)}</td><td>${getQCBadge(p.fwd.qc,'homo')}</td><td>${getQCBadge(p.fwd.qc,'hp')}</td><td>${getQCBadge(p.fwd.qc,'sd')}</td><td rowspan="2" style="vertical-align:middle; text-align:center; border-left:1px solid #eee;">${badge(xInfo.label, xInfo.cls)}</td></tr><tr><td style="font-weight:600">${p.rev.name}</td><td class="seq-cell">${formatSeq(p.rev)}</td><td>${p.rev.seq.length}</td><td>${p.rev.qc.gc.toFixed(1)}%</td><td>${p.rev.tmCore.toFixed(2)}</td><td>${p.rev.tmFull.toFixed(2)}</td><td>${getQCBadge(p.rev.qc,'homo')}</td><td>${getQCBadge(p.rev.qc,'hp')}</td><td>${getQCBadge(p.rev.qc,'sd')}</td></tr></tbody></table></div>`;
+    });
+    document.getElementById('primer-table').innerHTML = h;
+
+    let oh = `<table><thead><tr><th>Junction</th><th>Left overhang (5'→3')</th><th>Right overhang (5'→3')</th></tr></thead><tbody>`;
+    oh += `<tr><td><span class="oh-chip" style="background:${PAL[0]}"></span> 1</td><td class="seq-mono">${overhangs[0]} (Vector, ${PROJECT.vector.name})</td><td class="seq-mono">${CORE.reverseComplementSeq(overhangs[0])} (Insert #${primers[0].id}, ${primers[0].name})</td></tr>`;
+    for(let i=0; i<primers.length-1; i++) {
+        const col = PAL[(i+1) % PAL.length];
+        oh += `<tr><td><span class="oh-chip" style="background:${col}"></span> ${i+2}</td><td class="seq-mono">${overhangs[i+1]} (Insert #${primers[i].id})</td><td class="seq-mono">${CORE.reverseComplementSeq(overhangs[i+1])} (Insert #${primers[i+1].id})</td></tr>`;
+    }
+    const lastCol = PAL[primers.length % PAL.length];
+    oh += `<tr><td><span class="oh-chip" style="background:${lastCol}"></span> ${primers.length+1}</td><td class="seq-mono">${overhangs[overhangs.length-1]} (Insert #${primers[primers.length-1].id})</td><td class="seq-mono">${CORE.reverseComplementSeq(overhangs[overhangs.length-1])} (Vector)</td></tr>`;
+    oh += `</tbody></table>`;
+    document.getElementById('oh-table').innerHTML = oh;
+
+    // --- Gel Lane Construction ---
+    const lanes = []; 
+    // L2: Uncut
+    lanes.push([PROJECT.vector.normSeq.length]); 
+    
+    // L3: Digest
+    let digests = PROJECT.vector.allFragments.map(f => f.len).sort((a,b)=>b-a);
+    if (digests.length === 0) digests = [PROJECT.vector.normSeq.length];
+    lanes.push(digests); 
+    
+    // L4+: PCRs
+    primers.forEach(p => lanes.push([p.pcrLen])); 
+    
+    // Last: Assembled
+    const assembledLen = PROJECT.results.assembledSeq.length;
+    lanes.push([assembledLen]);
+
+    // We constructed lanes as [L2, L3, L4, ..., Last]
+    // Prepend an empty array for L1 placeholder for VIZ
+    const vizLanes = [[]].concat(lanes);
+
+    VIZ.updateGelState({
+        lanes: vizLanes,
+        insertCount: primers.length,
+        insertNames: primers.map(p => p.name),
+        vectorName: PROJECT.vector.name,
+        enzymeName: PROJECT.vector.enzyme.site,
+        assembledName: PROJECT.results.assembledName,
+        assembledLaneIndex: vizLanes.length - 1
+    });
+    
+    const scSet = new Set([1, vizLanes.length - 1]); 
+    const ladKey = document.getElementById('ggx-ladder').value;
+    const lad = CORE.LADDER_PROFILES[ladKey];
+    VIZ.drawGel('gg-gel-canvas', vizLanes, lad.sizesKb.map(k=>k*1000), lad.boldKb.map(k=>k*1000), lad.name, {highlightIndices: scSet});
+}
+
+// --- Auto-Insert Handlers ---
+const fragList = document.getElementById('frag-list');
+const addBtn = document.getElementById('btn-add-insert');
+
+function createFragRow(index) {
+    const div = document.createElement('div'); div.className = 'frag-row';
+    div.innerHTML = `
+      <div class="frag-label">Insert #${index}</div>
+      <div class="frag-body">
+        <textarea class="frag-seq" placeholder=">insert\nATGC..."></textarea>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-top:5px;">
+            <label class="btn ghost sm" style="margin:0; cursor:pointer; font-weight:400; color:#334155; background:#f1f5f9; border:1px solid #e2e8f0; padding:3px 8px;">
+                Choose File <input type="file" class="frag-file-input" style="display:none">
+            </label>
+            <div style="display:flex; gap:5px;">
+                <button class="btn xs ghost btn-upload" title="Reload file">Upload</button>
+                <button class="btn xs ghost btn-rc" title="Reverse Complement">Flip (rc)</button>
+            </div>
+        </div>
+      </div>
+      <div class="frag-actions">
+        <button class="btn xs ghost btn-up">↑</button>
+        <button class="btn xs ghost btn-down">↓</button>
+        <button class="btn xs ghost btn-del">Del</button>
+      </div>
+    `;
+    return div;
+}
+
+function refreshFragList() {
+    const rows = fragList.querySelectorAll('.frag-row');
+    rows.forEach((row, i) => row.querySelector('.frag-label').innerText = `Insert #${i + 1}`);
+    addBtn.disabled = (rows.length >= 6);
+}
+
+fragList.addEventListener('click', (e) => {
+    const t = e.target; const row = t.closest('.frag-row'); if(!row) return;
+    if(t.classList.contains('btn-del')) { row.remove(); refreshFragList(); }
+    if(t.classList.contains('btn-up') && row.previousElementSibling) { fragList.insertBefore(row, row.previousElementSibling); refreshFragList(); }
+    if(t.classList.contains('btn-down') && row.nextElementSibling) { fragList.insertBefore(row.nextElementSibling, row); refreshFragList(); }
+    if(t.classList.contains('btn-rc')) { const ta = row.querySelector('.frag-seq'); const s = CORE.normalizeSeq(ta.value); if(s) ta.value = CORE.reverseComplementSeq(s); }
+    if(t.classList.contains('btn-upload')) { 
+         const hiddenInput = row.querySelector('.frag-file-input');
+         if(hiddenInput) hiddenInput.click();
+    }
+});
+
+fragList.addEventListener('change', (e) => {
+    if(e.target.classList.contains('frag-file-input')) {
+        const file = e.target.files[0];
+        if(file) {
+            const row = e.target.closest('.frag-row');
+            const ta = row.querySelector('.frag-seq');
+            const r = new FileReader();
+            r.onload = ev => { ta.value = ev.target.result; };
+            r.readAsText(file);
+        }
+    }
+});
+
+// Main Init
+document.getElementById('gg-vector').addEventListener('input', analyzeVector);
+document.getElementById('gg-enzyme-main').addEventListener('change', analyzeVector);
+document.getElementById('gg-backbone-select').addEventListener('change', updateSelectedBackbone);
+document.getElementById('gg-map-rotation').addEventListener('input', analyzeVector);
+document.getElementById('ggx-ladder').addEventListener('change', renderOutput);
+addBtn.onclick = () => { fragList.appendChild(createFragRow(fragList.children.length+1)); refreshFragList(); };
+document.getElementById('btn-flip-order').onclick = () => { Array.from(fragList.children).reverse().forEach(n=>fragList.appendChild(n)); refreshFragList(); };
+document.getElementById('btn-vector-upload').onclick = () => document.getElementById('file-vector').click();
+document.getElementById('file-vector').onchange = (e) => {
+    const r = new FileReader();
+    r.onload = ev => { document.getElementById('gg-vector').value = ev.target.result; analyzeVector(); };
+    r.readAsText(e.target.files[0]);
+};
+document.getElementById('gg-run').onclick = runDesign;
+document.getElementById('gg-clear').onclick = () => document.getElementById('results-wrap').style.display = 'none';
+document.getElementById('btn-reset').onclick = () => location.reload();
+document.getElementById('gg-download-btn').onclick = () => {
+    if(!PROJECT.results.primers.length) return alert("No results.");
+    const type = document.getElementById('gg-download-type').value;
+    
+    if(type === 'primers') {
+        let txt = "Name\tSequence\n";
+        PROJECT.results.primers.forEach(p => { txt += `${p.fwd.name}\t${p.fwd.seq}\n${p.rev.name}\t${p.rev.seq}\n`; });
+        const blob = new Blob([txt], {type:'text/plain'});
+        const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download="primers.txt"; a.click();
+    } else if (type === 'fasta') {
+        if(!PROJECT.results.assembledSeq) return alert("No sequence data.");
+        const name = PROJECT.results.assembledName;
+        const seq = PROJECT.results.assembledSeq;
+        let fasta = `>${name}\n`;
+        for(let i=0; i<seq.length; i+=80) {
+            fasta += seq.slice(i, i+80) + "\n";
+        }
+        const blob = new Blob([fasta], {type:'text/plain'});
+        const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${name}.fasta`; a.click();
+    }
+};
+addBtn.click();
+</script>
+</body>
+</html>
