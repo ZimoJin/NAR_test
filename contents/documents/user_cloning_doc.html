@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USER Enzyme Cloning - PrimerWeaver</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+            color: #333;
+            background: #f9fafb;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1e40af;
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #2563eb;
+            margin-top: 2em;
+            margin-bottom: 1em;
+            font-size: 1.5em;
+        }
+        h3 {
+            color: #3b82f6;
+            margin-top: 1.5em;
+            margin-bottom: 0.8em;
+            font-size: 1.2em;
+        }
+        h4 {
+            color: #60a5fa;
+            margin-top: 1.2em;
+            margin-bottom: 0.6em;
+        }
+        p {
+            margin-bottom: 1em;
+            text-align: justify;
+        }
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 1em;
+        }
+        li {
+            margin-bottom: 0.5em;
+        }
+        strong {
+            color: #1e40af;
+            font-weight: 600;
+        }
+        code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #c2410c;
+        }
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1em 0;
+        }
+        pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5em 0;
+            font-size: 0.95em;
+        }
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #f1f5f9;
+            color: #1e40af;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background: #f8fafc;
+        }
+        .abstract {
+            background: #eff6ff;
+            border-left: 4px solid #2563eb;
+            padding: 20px;
+            margin: 2em 0;
+            border-radius: 4px;
+        }
+        .abstract p {
+            margin: 0;
+            font-style: italic;
+        }
+        .info-box {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 16px;
+            margin: 1.5em 0;
+            border-radius: 4px;
+        }
+        .warning-box {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 16px;
+            margin: 1.5em 0;
+            border-radius: 4px;
+        }
+        .section {
+            margin-bottom: 2.5em;
+        }
+        .version-info {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.9em;
+            margin-top: 3em;
+            padding-top: 2em;
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>USER Enzyme Cloning Primer Designer</h1>
+        
+        <div class="abstract">
+            <p>The USER Cloning module enables the design of primers for seamless DNA assembly using the USER enzyme system (Uracil-Specific Excision Reagent). This tool automates the addition of uracil bases at the 5' ends of primers, which are recognized and cleaved by USER enzyme to create compatible sticky ends. USER cloning provides a rapid, efficient alternative to traditional restriction enzyme cloning and seamless assembly methods, combining the advantages of directional control with simplicity.</p>
+        </div>
+
+        <div class="section">
+            <h2>Quick Start Guide</h2>
+            <ol>
+                <li><strong>Input Sequences:</strong> Provide insert and vector sequences in FASTA format.</li>
+                <li><strong>Configure Assembly:</strong> Specify which fragments have USER-modified 5' ends and the length of overlap regions.</li>
+                <li><strong>Set Parameters:</strong> Adjust Tm target, salt concentrations, and overlap length if needed.</li>
+                <li><strong>Design Primers:</strong> Click "Design Primers" to generate primers with USER-compatible overhangs.</li>
+                <li><strong>Review Results:</strong> Examine primers with uracil positions highlighted, Tm values, and assembly prediction.</li>
+                <li><strong>Order Primers:</strong> Download primers noting that they contain uracil (U) in specific positions.</li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2>USER Enzyme Cloning Principle</h2>
+            
+            <h3>USER System Overview</h3>
+            <p>USER (Uracil-Specific Excision Reagent) is a DNA assembly method based on enzymatic recognition of uracil, a non-standard nucleotide in DNA:</p>
+            <ul>
+                <li><strong>Uracil Incorporation:</strong> Primers are synthesized with uracil (U) bases at specific 5' positions</li>
+                <li><strong>USER Enzyme Recognition:</strong> USER enzyme complex recognizes and cleaves DNA containing uracil</li>
+                <li><strong>Sticky End Generation:</strong> Cleavage creates 4 bp overhangs compatible between insert and vector</li>
+                <li><strong>Ligation:</strong> Complementary sticky ends anneal and are sealed by DNA ligase</li>
+            </ul>
+
+            <h3>Uracil-Based Assembly Strategy</h3>
+            <ul>
+                <li><strong>Forward Primer (Vector Insert):</strong>
+                    <ul>
+                        <li>Contains 2 uracil bases at 5' end</li>
+                        <li>USER enzyme cleaves downstream of uracil, exposing insert-specific overhang</li>
+                    </ul>
+                </li>
+                <li><strong>Reverse Primer (Vector Insert):</strong>
+                    <ul>
+                        <li>Contains 2 uracil bases at 5' end</li>
+                        <li>Reverse complement ensures 3' end compatibility with vector</li>
+                    </ul>
+                </li>
+                <li><strong>Multi-Fragment Assembly:</strong>
+                    <ul>
+                        <li>Multiple fragments can be assembled with USER primers</li>
+                        <li>Each junction has compatible USER-generated overhangs</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <div class="info-box">
+                <strong>USER System Advantages:</strong>
+                <ul style="margin: 8px 0 0 20px;">
+                    <li>No restriction site sequence required in insert</li>
+                    <li>No scar sequence left after cloning (compared to restriction enzymes)</li>
+                    <li>Higher efficiency than some restriction enzyme methods</li>
+                    <li>Directional control ensures insert orientation</li>
+                    <li>Room temperature cleavage (20-30°C)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Input and Configuration</h2>
+            
+            <h3>Sequence Input</h3>
+            <p>Accepts FASTA format or raw DNA sequences for vector and insert(s).</p>
+            
+            <h4>FASTA Example:</h4>
+            <pre><code>>pSC101_vector
+GGATCCCGAATTCGGCCTATAGCTGAAACCCACTGCTTACTGGCTTATCGAAATTAATA
+CTGAGATCCTTTTTCTAGACAAAGTACGTTTTATGATGAATCCGATGGTGATTTAAGTG
+AGTTCGTCATCATCCTCGGTTCTAGTAACCAGACCATTATTATGTACGTTGCACATCAG
+
+>GFP_insert
+ATGAGTAAAGGAGAAGAACTTTTCACTGGAGTTGTCCCAATTCTTGTTGAATTAG
+ATGGTGATGTTAATGGGCACAAATTTTCTGTCAGTGGAGAGGGTGAAGGTGATGC
+AACATACGGAAAACTTACCCTTAAATTTATTTGCACTACTGGAAAACTACCTGTT</code></pre>
+            
+            <h3>Assembly Configuration</h3>
+            <ul>
+                <li><strong>Fragment Selection:</strong> Choose which fragments have USER-modified 5' primers</li>
+                <li><strong>Vector Type:</strong> Specify if using circular vector (both ends need USER modification) or linear vector</li>
+                <li><strong>Overlap Length:</strong> Define length of overlap region between insert and vector (typically 15-30 bp)</li>
+                <li><strong>USER Position:</strong> Configure whether uracil bases are at 5' end of primers only (standard)</li>
+            </ul>
+
+            <h3>Overlap Region Design</h3>
+            <ul>
+                <li><strong>Vector-Insert Junctions:</strong> Both vector ends must have USER-compatible overhangs</li>
+                <li><strong>Overlap Length Selection:</strong>
+                    <ul>
+                        <li>15-20 bp: Standard, efficient</li>
+                        <li>20-30 bp: More stable, higher efficiency for difficult assemblies</li>
+                        <li>Balances primer length against overhang strength</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Design Parameters</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Default</th>
+                        <th>Range</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Overlap Length (bp)</strong></td>
+                        <td>18</td>
+                        <td>15–30</td>
+                        <td>Length of overhang region created by USER enzyme cleavage. Determines final sticky end length.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Uracil Position</strong></td>
+                        <td>5' ends (standard)</td>
+                        <td>5' end (standard)</td>
+                        <td>Position of uracil bases in primer; typically at 5' end for standard USER cloning.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Target Tm (°C)</strong></td>
+                        <td>55</td>
+                        <td>40–75</td>
+                        <td>Target melting temperature for primer design (excluding overhang region).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Primer Conc. (nM)</strong></td>
+                        <td>500</td>
+                        <td>50–2000</td>
+                        <td>Primer concentration for Tm calculation.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Na⁺ Conc. (mM)</strong></td>
+                        <td>50</td>
+                        <td>0–200</td>
+                        <td>Monovalent cation concentration.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mg²⁺ Conc. (mM)</strong></td>
+                        <td>2.0</td>
+                        <td>0–10</td>
+                        <td>Divalent cation concentration.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Primer Design Algorithm</h2>
+            
+            <h3>Primer Structure</h3>
+            <p>USER primers have a distinctive structure with uracil-containing regions:</p>
+            <ul>
+                <li><strong>5' Uracil Region:</strong> 2 nucleotides with uracil at positions 1-2 (e.g., UU or AU)</li>
+                <li><strong>Spacer:</strong> 1-2 natural nucleotides spacer between uracil and overhang region</li>
+                <li><strong>Overhang Region:</strong> Template-specific sequence (typically 15-30 bp) that becomes sticky end after USER digestion</li>
+                <li><strong>Template Binding Region:</strong> Rest of primer binds to template DNA</li>
+            </ul>
+
+            <h3>Design Process</h3>
+            <ol>
+                <li><strong>Identify Overhang Sequences:</strong>
+                    <ul>
+                        <li>Overhang must be specific to vector-insert junction</li>
+                        <li>Vector overhang and insert overhang must be complementary</li>
+                    </ul>
+                </li>
+                <li><strong>Construct Forward Primer (Insert):</strong>
+                    <ul>
+                        <li>5' end: UU + spacer + insert-specific overhang (n bp from insert start)</li>
+                        <li>Rest: template binding region</li>
+                    </ul>
+                </li>
+                <li><strong>Construct Reverse Primer (Insert):</strong>
+                    <ul>
+                        <li>5' end: UU + spacer + reverse complement of vector-specific overhang</li>
+                        <li>Rest: reverse complement of insert end region</li>
+                    </ul>
+                </li>
+                <li><strong>Design Vector Primers:</strong>
+                    <ul>
+                        <li>Two vector primers add complementary USER-compatible overhangs</li>
+                        <li>One primer for each vector end</li>
+                    </ul>
+                </li>
+                <li><strong>Optimize Template Binding Region:</strong>
+                    <ul>
+                        <li>Adjust length to achieve target Tm</li>
+                        <li>Tm calculation typically excludes uracil region or estimates its contribution</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h3>USER Cleavage and Overhang Generation</h3>
+            <ul>
+                <li>USER enzyme recognizes uracil and makes two cuts: one 2 bp away on each strand</li>
+                <li>Cleavage creates 4 bp 5' overhang (sticky end)</li>
+                <li>Overhang sequence is the insert-specific or vector-specific binding region</li>
+                <li>Complementary overhangs anneal, creating recessed 3' ends suitable for ligation</li>
+            </ul>
+
+            <div class="info-box">
+                <strong>Overhang Generation Pattern:</strong>
+                <ul style="margin: 8px 0 0 20px;">
+                    <li>Primer: <code>5'-UUVVNNNNNNNNNNNN-3'</code> (where UU = uracil, VV = spacer, N = overhang)</li>
+                    <li>USER cleavage: <code>5'-UU^ VVNNNNNNNNNNNN-3'</code></li>
+                    <li>After purification: <code>5'-VVNNNNNNNNNNNN-3'</code> (4 bp sticky end)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Quality Metrics</h2>
+            
+            <h3>Primer Quality Assessment</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Description</th>
+                        <th>Optimal Range</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Total Primer Length</strong></td>
+                        <td>Full length including uracil region</td>
+                        <td>30–50 bp</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Template Binding Tm</strong></td>
+                        <td>Melting temperature of template region only</td>
+                        <td>Target ± 2°C</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Overhang Tm</strong></td>
+                        <td>Melting temperature of overhang region</td>
+                        <td>50–65°C</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Overall Primer Tm</strong></td>
+                        <td>Melting temperature of entire primer</td>
+                        <td>55–70°C typical</td>
+                    </tr>
+                    <tr>
+                        <td><strong>GC Content</strong></td>
+                        <td>Percentage of G and C bases in template region</td>
+                        <td>40–60%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hairpin</strong></td>
+                        <td>Intramolecular secondary structure</td>
+                        <td>ΔG &gt; -3 kcal/mol (weak/none)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Overhang Complementarity</strong></td>
+                        <td>Forward and reverse overhang compatibility</td>
+                        <td>Must be perfectly complementary</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="warning-box">
+                <strong>Critical Checks:</strong>
+                <ul style="margin: 8px 0 0 20px;">
+                    <li>Uracil positions must be exactly at 5' end (positions 1-2)</li>
+                    <li>Overhang sequences must be unique and non-complementary (except for intended junctions)</li>
+                    <li>Overhang Tm should be ≥50°C for stable annealing after USER digestion</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Results and Output</h2>
+            
+            <h3>Primer Table</h3>
+            <p>Comprehensive display showing:</p>
+            <ul>
+                <li>Primer name and orientation (forward/reverse)</li>
+                <li>Full sequence with uracil positions highlighted (shown as U)</li>
+                <li>Overhang region identified and highlighted</li>
+                <li>Template binding region Tm and overall Tm</li>
+                <li>Length, GC content, and quality badges</li>
+            </ul>
+
+            <h3>Overhang Compatibility Map</h3>
+            <ul>
+                <li>Diagram showing compatible overhangs between insert and vector</li>
+                <li>Visualizes how fragments will anneal after USER digestion</li>
+                <li>Confirms directional assembly</li>
+            </ul>
+
+            <h3>Assembly Prediction</h3>
+            <ul>
+                <li>Predicted sequence after PCR amplification of all fragments</li>
+                <li>After USER digestion and ligation of insert to vector</li>
+                <li>FASTA format for reference</li>
+            </ul>
+
+            <h3>USER Digestion Diagram</h3>
+            <ul>
+                <li>Shows how USER enzyme will cleave primers at uracil positions</li>
+                <li>Illustrates resulting overhang sequences</li>
+                <li>Helps verify correct overhang generation</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>USER Enzyme Cloning Protocol</h2>
+            
+            <h3>Step 1: PCR Amplification</h3>
+            <ul>
+                <li><strong>Template:</strong> Vector and insert DNA</li>
+                <li><strong>Primers:</strong> USER-modified primers containing uracil</li>
+                <li><strong>Polymerase:</strong> High-fidelity polymerase (e.g., Phusion, Q5)</li>
+                <li><strong>Conditions:</strong>
+                    <ul>
+                        <li>Annealing temperature: template-binding Tm (typically 50-65°C)</li>
+                        <li>Extension time: ~1 min per 1000 bp</li>
+                        <li>Cycles: 25-35</li>
+                    </ul>
+                </li>
+                <li><strong>Product Size:</strong> PCR product should be insert/vector size + ~20-60 bp (depending on overhang length)</li>
+            </ul>
+
+            <h3>Step 2: Product Purification</h3>
+            <ul>
+                <li>Purify PCR products using spin column or gel extraction</li>
+                <li>Remove template, polymerase, and excess primers</li>
+                <li>Quantify DNA concentration</li>
+            </ul>
+
+            <h3>Step 3: USER Enzyme Digestion</h3>
+            <ul>
+                <li><strong>USER Reaction:</strong>
+                    <ul>
+                        <li>PCR product: 100-500 ng</li>
+                        <li>USER enzyme (NEB or equivalent): 1 U per reaction</li>
+                        <li>Buffer: 1× CutSmart or USER-compatible buffer</li>
+                        <li>Total volume: 20 μL</li>
+                    </ul>
+                </li>
+                <li><strong>Incubation:</strong>
+                    <ul>
+                        <li>25°C for 15 minutes (UDG component)</li>
+                        <li>Then 37°C for 15 minutes (EndoVII component)</li>
+                    </ul>
+                </li>
+                <li><strong>Inactivation:</strong> 65°C for 20 minutes to inactivate USER enzyme</li>
+            </ul>
+
+            <h3>Step 4: Annealing and Ligation</h3>
+            <ul>
+                <li><strong>Mix Digested Fragments:</strong>
+                    <ul>
+                        <li>Digested vector: 50-100 ng</li>
+                        <li>Digested insert: 3-10× molar excess (or roughly equal concentration)</li>
+                        <li>Water: total volume 10 μL</li>
+                    </ul>
+                </li>
+                <li><strong>Annealing:</strong>
+                    <ul>
+                        <li>Mix at room temperature 5-10 minutes (allows complementary overhangs to anneal)</li>
+                    </ul>
+                </li>
+                <li><strong>Ligation:</strong>
+                    <ul>
+                        <li>Add T4 DNA Ligase: 200-400 U</li>
+                        <li>Add Ligation buffer: 1× (NEB or compatible)</li>
+                        <li>Incubate at 20°C for 1 hour, or</li>
+                        <li>Incubate at 4°C overnight for improved efficiency</li>
+                    </ul>
+                </li>
+                <li><strong>Inactivation:</strong> 65°C for 10 minutes</li>
+            </ul>
+
+            <h3>Step 5: Transformation</h3>
+            <ul>
+                <li>Transform ligation product into competent cells</li>
+                <li>Use 1-5 μL directly (can transform without purification)</li>
+                <li>Plate on selective medium</li>
+            </ul>
+
+            <h3>Step 6: Verification</h3>
+            <ul>
+                <li><strong>Colony PCR:</strong> Rapid screening of clones</li>
+                <li><strong>Restriction Analysis:</strong> Confirm insert presence using vector-specific restriction sites</li>
+                <li><strong>Sequencing:</strong> Verify correct insert orientation and sequence</li>
+            </ul>
+
+            <div class="info-box">
+                <strong>Protocol Optimization Tips:</strong>
+                <ul style="margin: 8px 0 0 20px;">
+                    <li>USER digestion is rapid (30 min total); much faster than restriction enzyme digestion</li>
+                    <li>No need for separate purification between digestion and ligation</li>
+                    <li>Overnight ligation at 4°C often more efficient than room temperature</li>
+                    <li>USER system tolerates some uracil incorporation variation (not 100% efficient)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Troubleshooting</h2>
+            
+            <h3>Common Issues</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Problem</th>
+                        <th>Likely Cause</th>
+                        <th>Solution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>No PCR product</td>
+                        <td>Uracil incorporation reduces primer efficiency</td>
+                        <td>Reduce extension temperature; use longer extension time; verify primer synthesis quality</td>
+                    </tr>
+                    <tr>
+                        <td>PCR product wrong size</td>
+                        <td>Primer design issue; template problem</td>
+                        <td>Verify primer sequences; check template identity; try gel extraction of correct band</td>
+                    </tr>
+                    <tr>
+                        <td>No colonies after transformation</td>
+                        <td>Failed USER digestion or ligation</td>
+                        <td>Verify USER enzyme activity; increase ligation time; check insert:vector molar ratio</td>
+                    </tr>
+                    <tr>
+                        <td>Very low number of colonies</td>
+                        <td>Inefficient USER cleavage; weak overhangs</td>
+                        <td>Use fresh USER enzyme; increase USER incubation time; ensure overhang Tm ≥50°C</td>
+                    </tr>
+                    <tr>
+                        <td>All colonies are vector-only</td>
+                        <td>Uncut vector self-ligation; insert digestion failure</td>
+                        <td>Ensure both vector and insert are fully digested; verify complementary overhangs</td>
+                    </tr>
+                    <tr>
+                        <td>Wrong insert orientation</td>
+                        <td>Overhang sequence issue</td>
+                        <td>Verify forward and reverse primer overhangs are correctly complementary; check design</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Advantages and Limitations</h2>
+            
+            <h3>Advantages</h3>
+            <ul>
+                <li><strong>No Restriction Sites Required:</strong> Uracil-based cleavage not dependent on specific DNA sequences</li>
+                <li><strong>Rapid Process:</strong> USER digestion faster than most restriction enzymes (~30 min total)</li>
+                <li><strong>Seamless Junctions:</strong> No scar sequence left after assembly</li>
+                <li><strong>Directional Control:</strong> Different primers for forward/reverse create directional cloning</li>
+                <li><strong>Flexible Overhang Design:</strong> Any 4 bp sequence can be used as overhang</li>
+                <li><strong>Cost-Effective:</strong> USER enzyme mix economical per reaction</li>
+                <li><strong>Multi-Fragment Assembly:</strong> Can assemble multiple fragments in one reaction</li>
+            </ul>
+
+            <h3>Limitations</h3>
+            <ul>
+                <li><strong>Uracil Incorporation Variation:</strong> Not 100% of primers incorporate uracil</li>
+                <li><strong>Primer Cost:</strong> Uracil-containing primers slightly more expensive than regular primers</li>
+                <li><strong>Requirement for USER Enzyme:</strong> Specialized reagent not as universally available as restriction enzymes</li>
+                <li><strong>Primer Efficiency:</strong> Uracil may slightly reduce PCR primer efficiency</li>
+                <li><strong>Size Limitations:</strong> Like other methods, very large inserts may be challenging</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Comparison with Other Cloning Methods</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Speed</th>
+                        <th>Efficiency</th>
+                        <th>Directionality</th>
+                        <th>Scar Sequence</th>
+                        <th>Complexity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>USER Cloning</strong></td>
+                        <td>Fast (~1 day)</td>
+                        <td>High</td>
+                        <td>Yes (directional)</td>
+                        <td>No scars</td>
+                        <td>Moderate</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Gibson Assembly</strong></td>
+                        <td>Fast (~1 day)</td>
+                        <td>Very High</td>
+                        <td>Yes</td>
+                        <td>No scars</td>
+                        <td>High (requires overlap design)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Golden Gate</strong></td>
+                        <td>Very Fast (1-2 hrs)</td>
+                        <td>Very High</td>
+                        <td>Yes</td>
+                        <td>No scars</td>
+                        <td>Moderate (Type IIS sites)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Restriction Enzyme</strong></td>
+                        <td>Moderate (~2 days)</td>
+                        <td>Good</td>
+                        <td>Yes (with different enzymes)</td>
+                        <td>Yes (site scars)</td>
+                        <td>Low (simple, well-known)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="version-info">
+            <p><strong>USER Enzyme Cloning Module v1.0.1</strong></p>
+            <p>Documentation for PrimerWeaver v1.1.11</p>
+        </div>
+    </div>
+</body>
+</html>
