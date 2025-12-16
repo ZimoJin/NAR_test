@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplex PCR - PrimerWeaver</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+            color: #333;
+            background: #f9fafb;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1e40af;
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #2563eb;
+            margin-top: 2em;
+            margin-bottom: 1em;
+            font-size: 1.5em;
+        }
+        h3 {
+            color: #3b82f6;
+            margin-top: 1.5em;
+            margin-bottom: 0.8em;
+            font-size: 1.2em;
+        }
+        h4 {
+            color: #60a5fa;
+            margin-top: 1.2em;
+            margin-bottom: 0.6em;
+        }
+        p {
+            margin-bottom: 1em;
+            text-align: justify;
+        }
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 1em;
+        }
+        li {
+            margin-bottom: 0.5em;
+        }
+        strong {
+            color: #1e40af;
+            font-weight: 600;
+        }
+        code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #c2410c;
+        }
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1em 0;
+        }
+        pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5em 0;
+            font-size: 0.95em;
+        }
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #f1f5f9;
+            color: #1e40af;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background: #f8fafc;
+        }
+        .abstract {
+            background: #eff6ff;
+            border-left: 4px solid #2563eb;
+            padding: 20px;
+            margin: 2em 0;
+            border-radius: 4px;
+        }
+        .abstract p {
+            margin: 0;
+            font-style: italic;
+        }
+        .highlight {
+            background: #fef3c7;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .section {
+            margin-bottom: 2.5em;
+        }
+        .info-box {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin: 1.5em 0;
+            border-radius: 4px;
+        }
+        .warning-box {
+            background: #fff7ed;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 1.5em 0;
+            border-radius: 4px;
+        }
+        .version-info {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.9em;
+            margin-top: 3em;
+            padding-top: 2em;
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Multiplex PCR Module Documentation</h1>
+        
+        <div class="abstract">
+            <p>The Multiplex PCR module provides comprehensive tools for designing and validating primer sets that can simultaneously amplify multiple DNA target sequences in a single reaction. The module operates in two modes: <strong>De Novo Design Mode</strong> for automated primer design from target sequences, and <strong>QC Mode</strong> for quality assessment and pooling analysis of existing primer pairs. Key features include thermodynamic-based primer design, cross-dimer conflict detection, off-target amplification analysis, intelligent primer pooling strategies, and interactive visualization of primer-primer interactions through heatmap matrices.</p>
+        </div>
+
+        <div class="section">
+            <h2>Overview</h2>
+            <p>Multiplex PCR enables simultaneous amplification of multiple DNA targets in a single reaction, offering significant advantages in throughput, cost-effectiveness, and sample conservation. However, designing successful multiplex primer sets requires careful consideration of multiple factors including primer-primer interactions, amplicon size distribution, and potential off-target amplification.</p>
+            
+            <p>The Multiplex PCR module addresses these challenges through two complementary workflows:</p>
+            <ul>
+                <li><strong>De Novo Design Mode:</strong> Automated design of primer pairs for multiple target sequences with integrated quality control and compatibility assessment</li>
+                <li><strong>QC Mode:</strong> Comprehensive quality assessment and pooling analysis of pre-designed primer pairs</li>
+            </ul>
+            
+            <p>Both modes employ thermodynamic calculations, secondary structure analysis, and graph-based pooling algorithms to ensure optimal primer set performance.</p>
+        </div>
+
+        <div class="section">
+            <h2>Quick Start Guide</h2>
+            
+            <h3>De Novo Design Mode</h3>
+            <ol>
+                <li>Select "De Novo Design Mode" radio button</li>
+                <li>Input target sequences in multi-FASTA format or upload a FASTA file</li>
+                <li>Adjust design parameters (Target Tm, ΔTm tolerance, salt concentrations)</li>
+                <li>Optionally add 5' overlap sequences for cloning applications</li>
+                <li>Click "Design Primers" to initiate automated design</li>
+                <li>Review primer properties, quality metrics, and pooling recommendations</li>
+                <li>Download primers by pool in FASTA format</li>
+            </ol>
+            
+            <h3>QC Mode</h3>
+            <ol>
+                <li>Select "QC Mode" radio button</li>
+                <li>Input designed primer pairs in FASTA format or upload a file</li>
+                <li>Adjust analysis parameters (salt concentrations, conflict thresholds)</li>
+                <li>Click "Analyze Primers" to perform quality assessment</li>
+                <li>Review QC metrics, cross-dimer analysis, and pooling strategy</li>
+                <li>Examine primer-primer interaction heatmap</li>
+                <li>Download optimized primer pools</li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2>Input Formats</h2>
+            
+            <h3>De Novo Design Mode: Target Sequences</h3>
+            <p>Accepts multi-FASTA format with multiple target sequences. Each sequence will receive one forward and one reverse primer pair optimized for the specified PCR conditions.</p>
+            
+            <h4>Multi-FASTA Format:</h4>
+            <pre><code>>Target1
+ATGGTGAGCAAGGGCGAGGAGCTGTTCACCGGGGTGGTGCCCATCCTGGTCGAGCTGGACGGCGACGTAAACGGCCACAAGTTCAGCGTGTCCGGCGAGGGCGAGGGCGATGCCACCTACGGCAAGCTGACCCTGAAGTTCATCTGCACCACCGGCAAGCTGCCCGTGCCCTGGCCCACCCTCGTGACCACCCTGACCTACGGCGTGCAGTGCTTCAGCCGCTACCCCGACCACATGAAGCAGCACGACTTCTTCAAGTCCGCCATGCCCGAAGGCTACGTCCAGGAGCGCACCATCTTCTTCAAGGACGACGGCAACTACAAGACCCGCGCCGAGGTGAAGTTCGAGGGCGACACCCTGGTGAACCGCATCGAGCTGAAGGGCATCGACTTCAAGGAGGACGGCAACATCCTGGGGCACAAGCTGGAGTACAACTACAACAGCCACAACGTCTATATCATGGCCGACAAGCAGAAGAACGGCATCAAGGTGAACTTCAAGATCCGCCACAACATCGAGGACGGCAGCGTGCAGCTCGCCGACCACTACCAGCAGAACACCCCCATCGGCGACGGCCCCGTGCTGCTGCCCGACAACCACTACCTGAGCACCCAGTCCGCCCTGAGCAAAGACCCCAACGAGAAGCGCGATCACATGGTCCTGCTGGAGTTCGTGACCGCCGCCGGGATCACTCTCGGCATGGACGAGCTGTACAAGTAA
+
+>Target2
+ATGAACACCCCGGGAATTCTGGATTCGGCGTTCGCGTCGACCCTGGGCGTGCTGTTCTCGTGGCTGTGGGCGTTCACGTCGGCGCTGTTCGGTGGTCGCGACCTGCTGGCGTTCGCGGGCGGCCTGGTCGCGCTGGTCGGTGCGCTGACGCTGATCGCGCTGTCCGGCGCGGCGTTCGGTGCGGCGTTCGGTGGTCTGGCGCTGACGGCGTTCTCCTGGCTGCTGGCGTTCGGTGGTGCGCTGACGCTGTTCGCGGGCCTGTTCGGTGCGGCGTTCGGTGGTCTGGCGCTGACGGCGTTCTCCTGGCTGCTGGCGTTCGGTGGTGCGCTGACGCTGTTCGCGGGCCTGTTCGGTGCGGCGTTCGGTGGTCTGGCGCTGACGGCGTTCTCCTGGCTGCTGGCGTTCGGTGGTGCGCTGACGCTGTTCGCGGGCCTGTTCGGTGCGGCGTTCGGTGGTCTGGCGCTGACGGCGTTCTCCTGGCTGCTGGCG
+
+>Target3
+ATGCGTAAAGGAGAAGAACTTTTCACTGGAGTTGTCCCAATTCTTGTTGAATTAGATGGTGATGTTAATGGGCACAAATTTTCTGTCAGTGGAGAGGGTGAAGGTGATGCAACATACGGAAAACTTACCCTTAAATTTATTTGCACTACTGGAAAACTACCTGTTCCATGGCCAACACTTGTCACTACTTTCGGTTATGGTGTTCAATGCTTTGCGAGATACCCAGATCATATGAAACAGCATGACTTTTTCAAGAGTGCCATGCCCGAAGGTTATGTACAGGAAAGAACTATATTTTTCAAAGATGACGGGAACTACAAGACACGTGCTGAAGTCAAGTTTGAAGGTGATACCCTTGTTAATAGAATCGAGTTAAAAGGTATTGATTTTAAAGAAGATGGAAACATTCTTGGACACAAATTGGAATACAACTATAACTCACACAATGTATACATCATGGCAGACAAACAAAAGAATGGAATCAAAGTTAACTTCAAAATTAGACACAACATTGAAGATGGAAGCGTTCAACTAGCAGACCATTATCAACAAAATACTCCAATTGGCGATGGCCCTGTCCTTTTACCAGACAACCATTACCTGTCCACACAATCTGCCCTTTCGAAAGATCCCAACGAAAAGAGAGACCACATGGTCCTTCTTGAGTTTGTAACAGCTGCTGGGATTACACATGGCATGGATGAACTATACAAATAA</code></pre>
+            
+            <h3>QC Mode: Designed Primer Pairs</h3>
+            <p>Accepts primer pairs in FASTA format. The tool automatically recognizes and pairs primers using flexible naming conventions.</p>
+            
+            <h4>Supported Naming Conventions:</h4>
+            <ul>
+                <li><code>Target1-F / Target1-R</code> (with dash)</li>
+                <li><code>Target1_F / Target1_R</code> (with underscore)</li>
+                <li><code>Target1F / Target1R</code> (no separator)</li>
+                <li><code>Target1-Forward / Target1-Reverse</code> (full words)</li>
+                <li><code>Target1_Forward / Target1_Reverse</code> (full words with underscore)</li>
+                <li><code>Target1-fwd / Target1-rev</code> (abbreviated)</li>
+                <li><code>Target1_FWD / Target1_REV</code> (uppercase abbreviated)</li>
+            </ul>
+            
+            <h4>Example:</h4>
+            <pre><code>>Target1-F
+ATGGTGAGCAAGGGCGAGGAG
+>Target1-R
+CTTGTACAGCTCGTCCATGCC
+
+>Target2-F
+ATGAACACCCCGGGAATTCTG
+>Target2-R
+CGCCAGCAGCCAGGAGAACGC
+
+>Target3-F
+ATGCGTAAAGGAGAAGAACTT
+>Target3-R
+TTATTTGTAGTTCATCCATGC</code></pre>
+        </div>
+
+        <div class="section">
+            <h2>Design Parameters</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Default</th>
+                        <th>Range</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Target Tm (°C)</strong></td>
+                        <td>55</td>
+                        <td>40–80</td>
+                        <td>Target melting temperature for primer design. Primers will be designed to have Tm close to this value.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ΔTm (°C)</strong></td>
+                        <td>2.5</td>
+                        <td>0–10</td>
+                        <td>Maximum allowed difference between primer Tm and Target Tm. Controls how close each primer's melting temperature should be to the target.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Primer Conc. (nM)</strong></td>
+                        <td>500</td>
+                        <td>50–2000</td>
+                        <td>Primer concentration in the PCR reaction. Used for Tm calculation. Typical range: 200–1000 nM.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Na⁺ Conc. (mM)</strong></td>
+                        <td>50</td>
+                        <td>0–200</td>
+                        <td>Monovalent cation concentration used for salt-corrected Tm calculation.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mg²⁺ Conc. (mM)</strong></td>
+                        <td>2.0</td>
+                        <td>0–10</td>
+                        <td>Divalent cation concentration used for salt-corrected Tm calculation. Set to 0 if unknown.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Size Tolerance (bp)</strong></td>
+                        <td>20</td>
+                        <td>0–50</td>
+                        <td>Product size difference threshold for gel electrophoresis resolution. Set to 0 to disable size-based pooling (for qPCR, sequencing).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Forward Overlap</strong></td>
+                        <td>—</td>
+                        <td>Optional</td>
+                        <td>Sequence to append to 5' end of forward primers for cloning (e.g., Gibson Assembly). Does not participate in Tm calculation.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Reverse Overlap</strong></td>
+                        <td>—</td>
+                        <td>Optional</td>
+                        <td>Sequence to append to 5' end of reverse primers for cloning applications. Does not participate in Tm calculation.</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="info-box">
+                <strong>Note on Size Tolerance:</strong>
+                <ul style="margin: 8px 0 0 20px;">
+                    <li><strong>0 bp:</strong> Disable size-based pooling (for qPCR, sequencing, or when gel electrophoresis is not used)</li>
+                    <li><strong>5 bp:</strong> High-resolution gel (2–3% agarose), can distinguish very close bands</li>
+                    <li><strong>10–15 bp:</strong> Standard gel (1–2% agarose), reliably distinguishes most bands</li>
+                    <li><strong>20 bp:</strong> Default value, suitable for routine gel electrophoresis</li>
+                </ul>
+            </div>
+            
+            <div class="warning-box">
+                <strong>Important:</strong> In QC mode, size-based pooling is automatically disabled as PCR product length information is not available. Pooling is based solely on thermodynamic parameters.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Output and Results</h2>
+            
+            <h3>Primer Properties Table</h3>
+            <p>For each designed or analyzed primer pair, the following metrics are displayed:</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Target</strong></td>
+                        <td>Target sequence name (spans both primers in pair)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Primer</strong></td>
+                        <td>Primer identifier (Target-F or Target-R)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sequence (5'→3')</strong></td>
+                        <td>Full primer sequence including optional overlap</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Length</strong></td>
+                        <td>Primer length in base pairs</td>
+                    </tr>
+                    <tr>
+                        <td><strong>GC%</strong></td>
+                        <td>GC content percentage (optimal: 40–60%)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tm (°C)</strong></td>
+                        <td>Melting temperature (calculated for core sequence only, excluding overlap)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Homopolymer</strong></td>
+                        <td>Detection of consecutive identical bases (≥4 considered problematic)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hairpin</strong></td>
+                        <td>Hairpin structure classification (None/Weak/Medium/Strong/Very Strong)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Self-Dimer</strong></td>
+                        <td>Self-dimer formation classification</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cross-Dimer</strong></td>
+                        <td>Worst cross-dimer interaction with other primers in the set (spans both primers in pair)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Off-Target</strong></td>
+                        <td>Number of non-target sequences that may be amplified (De Novo Design Mode only, spans both primers in pair)</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Quality Classification Badges</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Classification</th>
+                        <th>ΔG Range (kcal/mol)</th>
+                        <th>Color</th>
+                        <th>Interpretation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>None/OK</strong></td>
+                        <td>&gt; -3</td>
+                        <td style="background: #d1fae5;">Green</td>
+                        <td>No significant interaction; optimal</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Weak</strong></td>
+                        <td>-3 to -5</td>
+                        <td style="background: #fef3c7;">Light Yellow</td>
+                        <td>Minor interaction; generally acceptable</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Medium/Moderate</strong></td>
+                        <td>-5 to -7</td>
+                        <td style="background: #fed7aa;">Orange</td>
+                        <td>Moderate interaction; may cause issues</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Strong/Very Strong</strong></td>
+                        <td>≤ -7</td>
+                        <td style="background: #fecaca;">Red</td>
+                        <td>Severe interaction; likely to cause PCR failure</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Primer Pooling Strategy</h2>
+            
+            <h3>Conflict Detection and Pooling Algorithm</h3>
+            <p>The module employs a graph-based approach to optimize primer pooling, considering three types of conflicts:</p>
+            
+            <h4>1. Cross-Dimer Conflicts (Thermodynamic)</h4>
+            <p>Primers with strong thermodynamic interactions (ΔG ≤ -6 kcal/mol) can form primer-dimers, consuming primers and causing amplification failure. The algorithm uses a seed-and-extend logic:</p>
+            <ul>
+                <li><strong>3' End Involvement (Lethal):</strong> If the 3' end is complementary and can be extended by polymerase, even moderate binding (ΔG ≤ -3 kcal/mol) is flagged as problematic</li>
+                <li><strong>5' End Only (Less Critical):</strong> T-shaped or hanging dimers without 3' involvement require very strong binding (ΔG ≤ -6 kcal/mol) to be considered conflicts</li>
+            </ul>
+            
+            <h4>2. Product Size Conflicts (Gel Resolution)</h4>
+            <p>PCR products with similar sizes (difference &lt; size tolerance) may not be distinguishable on gel electrophoresis. Products must be separated by at least the specified size tolerance to be pooled together.</p>
+            
+            <div class="info-box">
+                <strong>Size-Based Pooling Examples:</strong>
+                <ul style="margin: 8px 0 0 20px;">
+                    <li>Products of 100 bp and 115 bp with size tolerance = 20 bp: <strong>Can pool together</strong> (difference = 15 bp &lt; 20 bp threshold)</li>
+                    <li>Products of 100 bp and 125 bp with size tolerance = 20 bp: <strong>Cannot pool</strong> (difference = 25 bp &gt; 20 bp threshold)</li>
+                    <li>Size tolerance = 0: All size-based pooling is disabled</li>
+                </ul>
+            </div>
+            
+            <h4>3. Off-Target Amplification Conflicts</h4>
+            <p>Multiple primer pairs that can amplify on the same non-target sequence would produce overlapping bands, making it difficult to distinguish target products. Such pairs must be separated into different pools.</p>
+            
+            <h3>Graph Coloring Algorithm</h3>
+            <p>The module builds a unified conflict graph where:</p>
+            <ol>
+                <li>Each primer pair is represented as a node</li>
+                <li>Edges connect pairs that have any type of conflict</li>
+                <li>A greedy graph coloring algorithm assigns primer pairs to pools</li>
+                <li>Pairs in the same pool (same color) have no conflicts and can be mixed</li>
+            </ol>
+            
+            <h3>Pooling Results</h3>
+            <p>The module provides clear guidance on pooling strategy:</p>
+            <ul>
+                <li><strong>Single Pool:</strong> All primers can be combined in one reaction tube</li>
+                <li><strong>Multiple Pools:</strong> Primers must be divided into separate reactions with clear explanation of conflict reasons</li>
+            </ul>
+            
+            <div class="warning-box">
+                <strong>QC Mode Limitations:</strong>
+                <ul style="margin: 8px 0 0 20px;">
+                    <li><strong>Size-based pooling:</strong> Disabled due to lack of PCR product length information. Pooling based solely on thermodynamic parameters.</li>
+                    <li><strong>Off-target amplification:</strong> Cannot be checked without template sequences. Design mode provides comprehensive off-target analysis.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Primer-Primer Interaction Heatmap</h2>
+            
+            <h3>Visualization</h3>
+            <p>The module generates interactive heatmap matrices showing all pairwise primer interactions. The heatmap uses color coding to indicate interaction strength:</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Color</th>
+                        <th>ΔG Range</th>
+                        <th>Interpretation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="background: rgb(250, 250, 250);">White/Light Gray</td>
+                        <td>&gt; -3 kcal/mol</td>
+                        <td>None/Weak interaction</td>
+                    </tr>
+                    <tr>
+                        <td style="background: rgb(255, 255, 200);">Light Yellow</td>
+                        <td>-5 to -3 kcal/mol</td>
+                        <td>Medium interaction</td>
+                    </tr>
+                    <tr>
+                        <td style="background: rgb(255, 200, 100);">Orange</td>
+                        <td>-7 to -5 kcal/mol</td>
+                        <td>Strong interaction</td>
+                    </tr>
+                    <tr>
+                        <td style="background: rgb(200, 50, 0);">Dark Red</td>
+                        <td>≤ -7 kcal/mol</td>
+                        <td>Very strong interaction</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Pool-Specific Heatmaps</h3>
+            <p>When primers are divided into multiple pools, separate heatmaps are generated for each pool. This allows visual verification that primers within each pool have minimal cross-interactions.</p>
+            
+            <div class="info-box">
+                <strong>Heatmap Features:</strong>
+                <ul style="margin: 8px 0 0 20px;">
+                    <li>Hover over any cell to view detailed ΔG value</li>
+                    <li>Diagonal cells (self-interaction) are grayed out</li>
+                    <li>Matrix is symmetric (interaction A→B = B→A)</li>
+                    <li>Darker colors indicate stronger, more problematic interactions</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Off-Target Amplification Analysis</h2>
+            <p><em>(De Novo Design Mode Only)</em></p>
+            
+            <h3>Detection Method</h3>
+            <p>The module checks whether each primer pair can produce amplicons on non-target sequences using a seed-and-extend approach:</p>
+            <ol>
+                <li><strong>3' Seed Match:</strong> The last 10 bases of the primer must match exactly for polymerase extension</li>
+                <li><strong>5' Mismatch Tolerance:</strong> The remaining 5' region allows up to 20% mismatches</li>
+                <li><strong>Amplicon Prediction:</strong> Identifies all possible amplicons formed by forward and reverse primer binding</li>
+            </ol>
+            
+            <h3>Results and Warnings</h3>
+            <p>When off-target amplification is detected:</p>
+            <ul>
+                <li>Warning box lists all primer pairs with off-target potential</li>
+                <li>Specifies which non-target sequences can be amplified</li>
+                <li>Shows predicted off-target amplicon sizes</li>
+                <li>Incorporates off-target conflicts into pooling strategy</li>
+            </ul>
+            
+            <div class="warning-box">
+                <strong>Important:</strong> Off-target amplification on shared non-target sequences creates pooling conflicts. Primer pairs that can both amplify the same non-target sequence must be separated into different pools to avoid confusing gel bands.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Mathematical Foundations</h2>
+            
+            <h3>Nearest-Neighbor Thermodynamics</h3>
+            <p>Primer Tm calculations use the unified nearest-neighbor (NN) model from SantaLucia (1998) and Allawi & SantaLucia (1997):</p>
+            
+            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin: 1em 0;">
+                <p style="text-align: center; font-family: 'Times New Roman', serif; font-size: 1.1em; margin: 0;">
+                    <em>T<sub>m</sub></em> = <span style="font-size: 1.3em;">ΔH°</span> / (ΔS° + R × ln(<em>C<sub>T</sub></em>/4)) - 273.15 + 16.6 × log[Na<sup>+</sup><sub>eq</sub>]
+                </p>
+            </div>
+            
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li>ΔH° and ΔS°: Enthalpy and entropy values from nearest-neighbor parameters (kcal/mol and cal/mol·K)</li>
+                <li>C<sub>T</sub>: Total primer concentration (default 500 nM)</li>
+                <li>R: Gas constant (1.987 cal/mol·K)</li>
+                <li>Na<sup>+</sup><sub>eq</sub>: Equivalent monovalent salt concentration, accounting for Mg<sup>2+</sup> effects</li>
+            </ul>
+            
+            <h3>Dimer Stability Calculation</h3>
+            <p>Dimer formation (both self and cross) is evaluated using the same nearest-neighbor model, with Gibbs free energy (ΔG) at reaction temperature determining stability classification. The calculation accounts for:</p>
+            <ul>
+                <li>Base-pair stacking in duplex regions</li>
+                <li>Salt concentration effects on duplex stability</li>
+                <li>Mismatches in partially complementary regions</li>
+                <li>3' end availability for polymerase extension (critical parameter for conflict classification)</li>
+            </ul>
+        </div>
+
+        <div class="version-info">
+            <p><strong>Multiplex PCR Module v1.0.1</strong></p>
+            <p>Documentation for PrimerWeaver v1.1.11</p>
+        </div>
+    </div>
+</body>
+</html>

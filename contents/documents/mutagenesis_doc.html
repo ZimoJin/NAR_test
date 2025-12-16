@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site-Directed Mutagenesis - PrimerWeaver</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+            color: #333;
+            background: #f9fafb;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1e40af;
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #2563eb;
+            margin-top: 2em;
+            margin-bottom: 1em;
+            font-size: 1.5em;
+        }
+        h3 {
+            color: #3b82f6;
+            margin-top: 1.5em;
+            margin-bottom: 0.8em;
+            font-size: 1.2em;
+        }
+        h4 {
+            color: #60a5fa;
+            margin-top: 1.2em;
+            margin-bottom: 0.6em;
+        }
+        p {
+            margin-bottom: 1em;
+            text-align: justify;
+        }
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 1em;
+        }
+        li {
+            margin-bottom: 0.5em;
+        }
+        strong {
+            color: #1e40af;
+            font-weight: 600;
+        }
+        code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #c2410c;
+        }
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1em 0;
+        }
+        pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5em 0;
+            font-size: 0.95em;
+        }
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #f1f5f9;
+            color: #1e40af;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background: #f8fafc;
+        }
+        .abstract {
+            background: #eff6ff;
+            border-left: 4px solid #2563eb;
+            padding: 20px;
+            margin: 2em 0;
+            border-radius: 4px;
+        }
+        .abstract p {
+            margin: 0;
+            font-style: italic;
+        }
+        .info-box {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 16px;
+            margin: 1.5em 0;
+            border-radius: 4px;
+        }
+        .warning-box {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 16px;
+            margin: 1.5em 0;
+            border-radius: 4px;
+        }
+        .section {
+            margin-bottom: 2.5em;
+        }
+        .version-info {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.9em;
+            margin-top: 3em;
+            padding-top: 2em;
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Site-Directed Mutagenesis Primer Designer</h1>
+        
+        <div class="abstract">
+            <p>The Site-Directed Mutagenesis module enables the design of primers for introducing targeted amino acid substitutions, point mutations, insertions, and deletions into DNA sequences using OE-PCR (Overlap Extension PCR). This tool automates the creation of mutagenic primers that allow rapid protein engineering, creation of disease models, and directed evolution studies without requiring restriction sites or synthetic templates.</p>
+        </div>
+
+        <div class="section">
+            <h2>Quick Start Guide</h2>
+            <ol>
+                <li><strong>Input Sequence:</strong> Paste or upload your DNA template (supports FASTA format).</li>
+                <li><strong>Specify Mutations:</strong> Enter the desired amino acid substitution (e.g., "K123E") or DNA change (e.g., "15:A>T").</li>
+                <li><strong>Set Parameters:</strong> Configure codon usage organism, Tm target, and salt concentrations.</li>
+                <li><strong>Design Primers:</strong> Click "Design Primers" to generate mutagenic primers.</li>
+                <li><strong>Review Results:</strong> Examine primer sequences, melting temperatures, and secondary structure analysis.</li>
+                <li><strong>Order Primers:</strong> Download primers and verify codon choice in the detailed report.</li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2>Site-Directed Mutagenesis Principle</h2>
+            
+            <h3>OE-PCR Strategy</h3>
+            <p>OE-PCR (Overlap Extension PCR) is a two-stage method for introducing mutations:</p>
+            <ul>
+                <li><strong>Stage 1: Fragment Amplification</strong>
+                    <ul>
+                        <li>Upstream fragment: amplified with forward primer (F1) and reverse mutagenic primer (Rmut)</li>
+                        <li>Downstream fragment: amplified with forward mutagenic primer (Fmut) and reverse primer (R2)</li>
+                        <li>Each fragment contains complementary overlap at the mutation site</li>
+                    </ul>
+                </li>
+                <li><strong>Stage 2: Extension and Full-Length Synthesis</strong>
+                    <ul>
+                        <li>Upstream and downstream fragments are mixed with F1 and R2 primers</li>
+                        <li>Overlapping regions anneal, creating template for polymerase extension</li>
+                        <li>Full-length mutated product is generated in subsequent cycles</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h3>Primer Types</h3>
+            <ul>
+                <li><strong>F1:</strong> Forward primer binding upstream of mutation site</li>
+                <li><strong>Fmut:</strong> Forward mutagenic primer containing desired mutation</li>
+                <li><strong>Rmut:</strong> Reverse mutagenic primer containing desired mutation</li>
+                <li><strong>R2:</strong> Reverse primer binding downstream of mutation site</li>
+            </ul>
+
+            <div class="info-box">
+                <strong>Key Principle:</strong> The mutagenic primers (Fmut and Rmut) contain complementary sequences that overlap, allowing them to anneal and extend through the mutation site, creating a template for full-length synthesis in the second PCR stage.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Input and Mutation Specification</h2>
+            
+            <h3>Template Input</h3>
+            <p>Supports FASTA format or raw DNA sequences. Can provide gene sequence or plasmid sequence.</p>
+            
+            <h4>FASTA Example:</h4>
+            <pre><code>>GFP_wild_type
+ATGAGTAAAGGAGAAGAACTTTTCACTGGAGTTGTCCCAATTCTTGTTGAATTAG
+ATGGTGATGTTAATGGGCACAAATTTTCTGTCAGTGGAGAGGGTGAAGGTGATGC
+AACATACGGAAAACTTACCCTTAAATTTATTTGCACTACTGGAAAACTACCTGTT
+CCATGGCCAACACTTGTCACTACTTTCGGTTATGGTGTTCAATGCTTTGCGAGAT
+ACCCAGATCATATGAAACAGCATGACTTTTTCAAGAGTGCCATGCCCGAAGGTTAT
+GTACAGGAAAGAACTATATTTTTCAAAGATGACGGGAACTACAAGACACGTGCTGA
+AGTCAAGTTTGAAGGTGATACCCTTGTTAATAGAATCGAGTTAAAAGGTATTGATT
+TTAAAGAAGATGGAAACATTCTTGGACACAAATTGGAATACAACTATAACTCACAC
+AATGTATACATCATGGCAGACAAACAAAAGAATGGAATCAAAGTTAACTTCAAAAT
+TAGACACAACATTGAAGATGGAAGCGTTCAACTAGCAGACCATTATCAACAAAATA
+CTCCAATTGGCGATGGCCCTGTCCTTTTACCAGACAACCATTACCTGTCCACACAA
+TCTGCCCTTTCGAAAGATCCCAACGAAAAGAGAGACCACATGGTCCTTCTTGAGTT
+TGTAACAGCTGCTGGGATTACACATGGCATGGATGAACTATACAAATAA</code></pre>
+            
+            <h3>Mutation Input Formats</h3>
+            
+            <h4>Amino Acid Substitution</h4>
+            <p>Format: <code>ResidueNumber:OldAA>NewAA</code> (e.g., K123E, Y66H)</p>
+            <ul>
+                <li><strong>K123E:</strong> Replace lysine at position 123 with glutamic acid</li>
+                <li><strong>Y66H:</strong> Replace tyrosine at position 66 with histidine</li>
+                <li>Position numbering starts from first methionine (M1)</li>
+                <li>Automatically converts to optimal DNA codon for specified organism</li>
+            </ul>
+            
+            <h4>DNA Point Mutation</h4>
+            <p>Format: <code>Position:OldBase>NewBase</code> (e.g., 15:A>T)</p>
+            <ul>
+                <li><strong>15:A>T:</strong> Replace adenine at position 15 with thymine</li>
+                <li>DNA position numbering starts at 1</li>
+                <li>Useful for creating silent mutations or non-coding changes</li>
+            </ul>
+            
+            <h4>Insertion</h4>
+            <p>Format: <code>Position:+SEQUENCE</code> (e.g., 100:+ATG)</p>
+            <ul>
+                <li>Inserts DNA sequence after specified position</li>
+                <li>For amino acid insertion, specify codon(s)</li>
+            </ul>
+            
+            <h4>Deletion</h4>
+            <p>Format: <code>Position:-(count)</code> (e.g., 50:-3)</p>
+            <ul>
+                <li>Deletes specified number of nucleotides starting at position</li>
+                <li>For amino acid deletion, delete multiples of 3 bp</li>
+            </ul>
+
+            <h3>Multiple Mutations</h3>
+            <p>Can design primers for multiple simultaneous mutations by listing them on separate lines or comma-separated.</p>
+
+            <div class="warning-box">
+                <strong>Multiple Mutation Considerations:</strong>
+                <ul style="margin: 8px 0 0 20px;">
+                    <li>Mutations should be within ~500 bp of each other for single OE-PCR reaction</li>
+                    <li>Distant mutations may require separate mutagenesis or nested PCR</li>
+                    <li>Verify that overlapping mutagenic primers can bind correctly</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Design Parameters</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Default</th>
+                        <th>Range</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Target Tm (°C)</strong></td>
+                        <td>55</td>
+                        <td>40–75</td>
+                        <td>Target melting temperature for primer design. Mutagenic primers will be optimized to this value.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Min Overlap (bp)</strong></td>
+                        <td>18</td>
+                        <td>15–25</td>
+                        <td>Minimum overlap length between mutagenic primers for annealing in OE-PCR stage 2.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Codon Organism</strong></td>
+                        <td>E. coli</td>
+                        <td>E. coli, Yeast, Human, Plant, etc.</td>
+                        <td>Host organism for codon optimization when designing AA substitutions.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Primer Conc. (nM)</strong></td>
+                        <td>500</td>
+                        <td>50–2000</td>
+                        <td>Primer concentration for Tm calculation.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Na⁺ Conc. (mM)</strong></td>
+                        <td>50</td>
+                        <td>0–200</td>
+                        <td>Monovalent cation concentration.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mg²⁺ Conc. (mM)</strong></td>
+                        <td>2.0</td>
+                        <td>0–10</td>
+                        <td>Divalent cation concentration.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Primer Design Algorithm</h2>
+            
+            <h3>Design Process</h3>
+            <ol>
+                <li><strong>Locate Mutation:</strong>
+                    <ul>
+                        <li>Find target position in template sequence</li>
+                        <li>Identify codon boundaries if AA substitution specified</li>
+                    </ul>
+                </li>
+                <li><strong>Design Mutagenic Primers (Fmut and Rmut):</strong>
+                    <ul>
+                        <li>Create forward primer containing mutation site at 3' end</li>
+                        <li>Create reverse complement primer containing mutation at 3' end</li>
+                        <li>Ensure primers extend sufficiently upstream/downstream for adequate overlap</li>
+                        <li>Optimize length to achieve target Tm</li>
+                    </ul>
+                </li>
+                <li><strong>Design Flanking Primers (F1 and R2):</strong>
+                    <ul>
+                        <li>F1 binds far upstream, targets opposite strand of upstream fragment</li>
+                        <li>R2 binds far downstream, targets opposite strand of downstream fragment</li>
+                        <li>These are typically standard PCR primers for full-length synthesis in stage 2</li>
+                    </ul>
+                </li>
+                <li><strong>Verify Overlap:</strong>
+                    <ul>
+                        <li>Fmut and Rmut should have complementary overlap (minimum 18 bp)</li>
+                        <li>Overlap region should have Tm ≥ 50°C for reliable annealing</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h3>Codon Optimization for AA Substitutions</h3>
+            <ul>
+                <li>When designing AA substitutions, the tool automatically selects the most frequently used codon in the specified organism</li>
+                <li>Considers available synonymous codons</li>
+                <li>Avoids rare codons that may reduce expression efficiency</li>
+                <li>Reports alternative codon choices if available</li>
+            </ul>
+
+            <div class="info-box">
+                <strong>Codon Usage Rationale:</strong>
+                <ul style="margin: 8px 0 0 20px;">
+                    <li><strong>E. coli:</strong> Uses leucine codon CTG, arginine codon CGC (preferred codons)</li>
+                    <li><strong>Yeast:</strong> Preferred codons differ from E. coli; avoids CTA (rare in yeast)</li>
+                    <li><strong>Mammalian:</strong> Generally flexible; many codons well-expressed</li>
+                    <li>Using organism-specific codons improves expression levels</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Quality Metrics</h2>
+            
+            <h3>Primer Quality Assessment</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Description</th>
+                        <th>Optimal Range</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Mutagenic Primer Length</strong></td>
+                        <td>Total length of Fmut and Rmut</td>
+                        <td>25–45 bp</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mutagenic Primer Tm</strong></td>
+                        <td>Melting temperature of mutagenic primers</td>
+                        <td>Target ± 2°C</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Overlap Tm</strong></td>
+                        <td>Melting temperature of overlapping region</td>
+                        <td>≥50°C recommended</td>
+                    </tr>
+                    <tr>
+                        <td><strong>GC Content</strong></td>
+                        <td>Percentage of G and C bases</td>
+                        <td>40–60%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hairpin</strong></td>
+                        <td>Intramolecular secondary structure</td>
+                        <td>ΔG &gt; -3 kcal/mol (weak/none)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Self-Dimer</strong></td>
+                        <td>Primer self-complementarity</td>
+                        <td>ΔG &gt; -5 kcal/mol</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="warning-box">
+                <strong>Critical Checks:</strong>
+                <ul style="margin: 8px 0 0 20px;">
+                    <li>Overlap Tm should be ≥50°C; lower Tm may cause poor overlap annealing</li>
+                    <li>3' end complementarity of Fmut and Rmut is essential for extension</li>
+                    <li>Avoid strong secondary structures that may prevent primer annealing</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Results and Output</h2>
+            
+            <h3>Primer Table</h3>
+            <p>Displays all four primers with:</p>
+            <ul>
+                <li>Primer name (F1, Fmut, Rmut, R2)</li>
+                <li>Full sequence with mutation highlighted</li>
+                <li>Tm value for entire primer</li>
+                <li>Length and GC content</li>
+                <li>Secondary structure assessment</li>
+            </ul>
+
+            <h3>Mutation Summary</h3>
+            <ul>
+                <li>Original amino acid/nucleotide sequence</li>
+                <li>Mutated amino acid/nucleotide sequence</li>
+                <li>Codon choice (for AA substitutions with explanation)</li>
+                <li>Position in template</li>
+            </ul>
+
+            <h3>Predicted Mutant Sequence</h3>
+            <ul>
+                <li>Full-length DNA sequence with mutation introduced</li>
+                <li>Can be highlighted to show mutation location</li>
+                <li>FASTA format for easy import</li>
+            </ul>
+
+            <h3>PCR Strategy Diagram</h3>
+            <ul>
+                <li>Visual representation of OE-PCR two-stage protocol</li>
+                <li>Shows fragment boundaries and primer binding sites</li>
+                <li>Illustrates overlap region formation</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>OE-PCR Protocol</h2>
+            
+            <h3>Stage 1: Fragment Amplification</h3>
+            <ul>
+                <li><strong>Reaction 1 (Upstream Fragment):</strong>
+                    <ul>
+                        <li>Template: wild-type plasmid or gene</li>
+                        <li>Primers: F1 + Rmut</li>
+                        <li>Product: upstream fragment with 3' overhang containing mutation</li>
+                    </ul>
+                </li>
+                <li><strong>Reaction 2 (Downstream Fragment):</strong>
+                    <ul>
+                        <li>Template: wild-type plasmid or gene</li>
+                        <li>Primers: Fmut + R2</li>
+                        <li>Product: downstream fragment with 5' overhang containing mutation</li>
+                    </ul>
+                </li>
+                <li><strong>PCR Conditions:</strong>
+                    <ul>
+                        <li>Annealing temperature: mutagenic primer Tm (typically 50-65°C)</li>
+                        <li>Extension time: based on product size (~1 min per 1000 bp)</li>
+                        <li>Cycles: 16-25 cycles</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h3>Stage 2: Full-Length Synthesis</h3>
+            <ul>
+                <li><strong>Combined Reaction:</strong>
+                    <ul>
+                        <li>Mix products from stage 1 reactions (no purification needed)</li>
+                        <li>Add F1 and R2 primers</li>
+                        <li>Perform PCR</li>
+                    </ul>
+                </li>
+                <li><strong>PCR Conditions:</strong>
+                    <ul>
+                        <li>Annealing temperature: F1/R2 primer Tm (typically 50-60°C)</li>
+                        <li>Extension time: full length (~2-3 min)</li>
+                        <li>Initial cycles (5-8) allow overlapping fragments to anneal and extend</li>
+                        <li>Final cycles (10-15) amplify full-length product using F1 and R2</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h3>Post-PCR</h3>
+            <ul>
+                <li><strong>Product Verification:</strong> Run gel electrophoresis to confirm full-length product</li>
+                <li><strong>Purification:</strong> Purify PCR product (e.g., spin column or gel extraction)</li>
+                <li><strong>Digestion (Optional):</strong> If using plasmid template, digest with restriction enzyme to remove template</li>
+                <li><strong>Transformation:</strong> Transform into competent cells</li>
+                <li><strong>Verification:</strong> Screen clones by colony PCR and sequencing</li>
+            </ul>
+
+            <div class="info-box">
+                <strong>Protocol Tips:</strong>
+                <ul style="margin: 8px 0 0 20px;">
+                    <li>Use high-fidelity polymerase for accurate amplification</li>
+                    <li>Do not purify between stage 1 and stage 2; simply mix and continue PCR</li>
+                    <li>If using plasmid template, final digestion removes wild-type template</li>
+                    <li>For difficult mutagenesis, increase extension time or cycle number</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Troubleshooting</h2>
+            
+            <h3>Common Issues</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Problem</th>
+                        <th>Likely Cause</th>
+                        <th>Solution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>No PCR product in stage 1</td>
+                        <td>Poor primer binding or design issue</td>
+                        <td>Verify primer Tm; check template quality; increase Mg²⁺ concentration</td>
+                    </tr>
+                    <tr>
+                        <td>No full-length product in stage 2</td>
+                        <td>Fragments don't anneal due to low overlap Tm</td>
+                        <td>Ensure overlap Tm ≥50°C; increase extension time; reduce annealing temperature</td>
+                    </tr>
+                    <tr>
+                        <td>Wrong size product</td>
+                        <td>Primer specificity issue or incorrect insertion/deletion</td>
+                        <td>Verify primer sequences; check template sequence; sequence positive clones</td>
+                    </tr>
+                    <tr>
+                        <td>Most clones are wild-type</td>
+                        <td>Template DNA not removed; primers had low efficiency</td>
+                        <td>Digest PCR product or template with restriction enzyme; redesign primers</td>
+                    </tr>
+                    <tr>
+                        <td>Mixed wild-type and mutant</td>
+                        <td>Template DNA carrying through; incomplete digestion</td>
+                        <td>Digest more thoroughly; use PCR product directly without plasmid template</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Applications</h2>
+            
+            <h3>Common Uses</h3>
+            <ul>
+                <li><strong>Protein Engineering:</strong> Create variants for activity, stability, or binding studies</li>
+                <li><strong>Disease Modeling:</strong> Introduce disease-associated mutations into cDNAs</li>
+                <li><strong>Enzyme Optimization:</strong> Screen for improved catalytic activity</li>
+                <li><strong>Binding Studies:</strong> Create binding-deficient or affinity-enhanced mutants</li>
+                <li><strong>Directed Evolution:</strong> Generate saturation mutagenesis libraries</li>
+                <li><strong>Silent Mutations:</strong> Create diagnostic or selection markers</li>
+            </ul>
+
+            <h3>Advantages of OE-PCR Mutagenesis</h3>
+            <ul>
+                <li>No restriction sites required</li>
+                <li>No synthetic template needed</li>
+                <li>Supports point mutations, insertions, and deletions</li>
+                <li>Can introduce multiple mutations simultaneously</li>
+                <li>Relatively quick (~2 days) compared to other methods</li>
+                <li>Cost-effective for creating diverse mutants</li>
+            </ul>
+        </div>
+
+        <div class="version-info">
+            <p><strong>Site-Directed Mutagenesis Module v1.0.1</strong></p>
+            <p>Documentation for PrimerWeaver v1.1.11</p>
+        </div>
+    </div>
+</body>
+</html>
