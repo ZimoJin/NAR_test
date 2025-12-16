@@ -1,2 +1,0 @@
-1. Mutagenesis 计算逻辑查看，尤其是DNA edit 好像移值错误。
-2. 继续测试USER Gibson 和golden gate 的逻辑计算，检测BUG
