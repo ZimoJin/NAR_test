@@ -1278,6 +1278,7 @@ function subseqCircular(seq, start, len){
           const text = await resp.text();
           textarea.value = text;
           updateVectorPreview();
+          calculateAndDisplayVectorFragments();
         } catch (e) {
           console.error('Vector demo load error:', e);
           alert('Failed to load demo sequence.');
@@ -1322,8 +1323,9 @@ function subseqCircular(seq, start, len){
           if (enzyme1Input) enzyme1Input.value = 'BamHI';
           if (enzyme2Input) enzyme2Input.value = 'SalI';
           
-          // Update vector preview to show enzyme sites
+          // Update vector preview to show enzyme sites and calculate fragments
           updateVectorPreview();
+          calculateAndDisplayVectorFragments();
         } catch (e) {
           console.error('Demo Set load error:', e);
           alert('Failed to load demo sequences.');
@@ -1435,11 +1437,95 @@ function subseqCircular(seq, start, len){
     }
   }
 
+  // Calculate and display restriction enzyme fragments
+  function calculateAndDisplayVectorFragments() {
+    const vectorText = document.getElementById('gg-vector').value.trim();
+    const backboneSelect = document.getElementById('re-backbone-select');
+    const fragmentsSummary = document.getElementById('re-fragments-summary');
+    
+    if (!vectorText || !backboneSelect) {
+      if (backboneSelect) {
+        backboneSelect.innerHTML = '<option value="">No fragments available</option>';
+      }
+      if (fragmentsSummary) {
+        fragmentsSummary.textContent = '';
+      }
+      return;
+    }
+    
+    try {
+      const records = window.CORE.parseFASTA(vectorText);
+      if (records.length === 0) {
+        backboneSelect.innerHTML = '<option value="">No fragments available</option>';
+        if (fragmentsSummary) fragmentsSummary.textContent = '';
+        return;
+      }
+      
+      const vector = records[0];
+      const seq = vector.seq;
+      
+      // Get enzyme names
+      const enzyme1Name = document.getElementById('re-enzyme1').value.trim();
+      const enzyme2Name = document.getElementById('re-enzyme2').value.trim();
+      
+      if (!enzyme1Name && !enzyme2Name) {
+        backboneSelect.innerHTML = '<option value="">Please select enzyme(s)</option>';
+        if (fragmentsSummary) fragmentsSummary.textContent = '';
+        return;
+      }
+      
+      const enzymeNames = [];
+      if (enzyme1Name) enzymeNames.push(enzyme1Name);
+      if (enzyme2Name && enzyme2Name !== enzyme1Name) enzymeNames.push(enzyme2Name);
+      
+      // Calculate fragments using digestCircularTypeII
+      let fragments = [];
+      if (enzymeNames.length > 0 && window.CORE.digestCircularTypeII) {
+        fragments = window.CORE.digestCircularTypeII(seq, enzymeNames);
+      }
+      
+      if (fragments.length === 0) {
+        backboneSelect.innerHTML = '<option value="">No fragments generated</option>';
+        if (fragmentsSummary) fragmentsSummary.textContent = '';
+        return;
+      }
+      
+      // Find longest fragment index
+      const longestIdx = fragments.reduce((maxIdx, frag, idx) => 
+        frag.length > fragments[maxIdx].length ? idx : maxIdx, 0);
+      
+      // Populate dropdown
+      backboneSelect.innerHTML = '';
+      fragments.forEach((frag, idx) => {
+        const option = document.createElement('option');
+        option.value = idx;
+        option.textContent = `Fragment ${idx + 1}: ${frag.length} bp${idx === longestIdx ? ' (Longest)' : ''}`;
+        if (idx === longestIdx) {
+          option.selected = true;
+        }
+        backboneSelect.appendChild(option);
+      });
+      
+      // Store fragments for later use
+      window.currentREFragments = fragments;
+      window.currentREBackboneSeq = fragments[longestIdx].seq;
+      
+      // Display summary
+      if (fragmentsSummary) {
+        fragmentsSummary.textContent = `(${fragments.length} fragment(s) generated)`;
+      }
+      
+    } catch (error) {
+      console.error('Error calculating fragments:', error);
+    }
+  }
+
   // Update vector preview on input (debounced)
   document.getElementById('gg-vector').addEventListener('input', () => {
     if (vectorPreviewTimer) clearTimeout(vectorPreviewTimer);
     vectorPreviewTimer = setTimeout(() => {
       updateVectorPreview();
+      calculateAndDisplayVectorFragments();
     }, 300);
   });
 
@@ -1459,9 +1545,26 @@ function subseqCircular(seq, start, len){
     });
   }
 
-  // Update vector preview when enzymes change
-  document.getElementById('re-enzyme1').addEventListener('input', updateVectorPreview);
-  document.getElementById('re-enzyme2').addEventListener('input', updateVectorPreview);
+  // Update vector preview and fragments when enzymes change
+  document.getElementById('re-enzyme1').addEventListener('input', () => {
+    updateVectorPreview();
+    calculateAndDisplayVectorFragments();
+  });
+  document.getElementById('re-enzyme2').addEventListener('input', () => {
+    updateVectorPreview();
+    calculateAndDisplayVectorFragments();
+  });
+
+  // Update backbone sequence when fragment selection changes
+  document.getElementById('re-backbone-select').addEventListener('change', () => {
+    const backboneSelect = document.getElementById('re-backbone-select');
+    if (!backboneSelect || !window.currentREFragments) return;
+    
+    const selectedIdx = parseInt(backboneSelect.value);
+    if (!isNaN(selectedIdx) && selectedIdx >= 0 && selectedIdx < window.currentREFragments.length) {
+      window.currentREBackboneSeq = window.currentREFragments[selectedIdx].seq;
+    }
+  });
 
   document.getElementById('gg-clear').addEventListener('click', ()=>{
     const resWrap = document.getElementById('results-wrap');
@@ -1752,9 +1855,29 @@ if(n1 === 0 || n2 === 0){
         const hasEnz1 = enz1 && enz1.site;
         const hasEnz2 = enz2 && enz2.site;
 
+        // Check if user has selected a specific fragment via dropdown
+        let userSelectedBackboneSeq = null;
+        if (window.currentREFragments && window.currentREFragments.length > 0) {
+          const backboneSelect = document.getElementById('re-backbone-select');
+          if (backboneSelect) {
+            const selectedIdx = parseInt(backboneSelect.value);
+            if (!isNaN(selectedIdx) && selectedIdx >= 0 && selectedIdx < window.currentREFragments.length) {
+              userSelectedBackboneSeq = window.currentREFragments[selectedIdx].seq;
+            }
+          }
+        }
+
         // Helper: fallback to simple backbone + insert model
         const fallbackBackbonePlusInsert = () => {
-          const backboneSeq = subseqCircular(vecSeq, digestInfo.backboneStart, digestInfo.longestFragLen);
+          let backboneSeq;
+          // Use user-selected fragment if available
+          if (userSelectedBackboneSeq) {
+            backboneSeq = userSelectedBackboneSeq;
+          } else if (window.currentREBackboneSeq) {
+            backboneSeq = window.currentREBackboneSeq;
+          } else {
+            backboneSeq = subseqCircular(vecSeq, digestInfo.backboneStart, digestInfo.longestFragLen);
+          }
           const seq = backboneSeq + insSeq;
           return { seq, len: seq.length };
         };
@@ -1766,97 +1889,111 @@ if(n1 === 0 || n2 === 0){
 
           // A1. Each enzyme has a single recognition site: simple replacement between sites
           if (s1.length === 1 && s2.length === 1) {
-            let p1 = s1[0];
-            let p2 = s2[0];
-            let leftPos = p1;
-            let rightPos = p2;
-            let leftSite = enz1.site;
-            let rightSite = enz2.site;
+            // If user selected a specific fragment, use simple model
+            if (userSelectedBackboneSeq) {
+              const fb = fallbackBackbonePlusInsert();
+              assembledSeq = fb.seq;
+              assembledLen = fb.len;
+            } else {
+              let p1 = s1[0];
+              let p2 = s2[0];
+              let leftPos = p1;
+              let rightPos = p2;
+              let leftSite = enz1.site;
+              let rightSite = enz2.site;
 
-            if (p2 < p1) {
-              leftPos = p2;
-              rightPos = p1;
-              leftSite = enz2.site;
-              rightSite = enz1.site;
+              if (p2 < p1) {
+                leftPos = p2;
+                rightPos = p1;
+                leftSite = enz2.site;
+                rightSite = enz1.site;
+              }
+
+              assembledSeq =
+                vecSeq.slice(0, leftPos) +
+                leftSite +
+                insSeq +
+                rightSite +
+                vecSeq.slice(rightPos + rightSite.length);
+              assembledLen = assembledSeq.length;
             }
-
-            assembledSeq =
-              vecSeq.slice(0, leftPos) +
-              leftSite +
-              insSeq +
-              rightSite +
-              vecSeq.slice(rightPos + rightSite.length);
-            assembledLen = assembledSeq.length;
           }
           // A2. Multiple sites: use digestInfo.longestFragLen/backboneStart to
           //     identify the backbone fragment, and treat the complementary
           //     arc as the "removed" MCS that gets replaced.
           else if ((s1.length + s2.length) >= 2) {
-            // Rebuild cuts the same way as in analyzeVectorDigest
-            const cuts = [];
-            s1.forEach(p => cuts.push({ pos: (p + enz1.cut5) % N, enz: 1 }));
-            s2.forEach(p => cuts.push({ pos: (p + enz2.cut5) % N, enz: 2 }));
-            cuts.sort((a, b) => a.pos - b.pos);
+            // If user selected a specific fragment, use simple model
+            if (userSelectedBackboneSeq) {
+              const fb = fallbackBackbonePlusInsert();
+              assembledSeq = fb.seq;
+              assembledLen = fb.len;
+            } else {
+              // Rebuild cuts the same way as in analyzeVectorDigest
+              const cuts = [];
+              s1.forEach(p => cuts.push({ pos: (p + enz1.cut5) % N, enz: 1 }));
+              s2.forEach(p => cuts.push({ pos: (p + enz2.cut5) % N, enz: 2 }));
+              cuts.sort((a, b) => a.pos - b.pos);
 
-            if (cuts.length >= 2) {
-              // Find the cut pair that matches the recorded backbone fragment
-              let idxLongest = 0;
-              for (let i = 0; i < cuts.length; i++) {
-                const start = cuts[i].pos;
-                const end = cuts[(i + 1) % cuts.length].pos;
-                const len = (end - start + N) % N || N;
-                if (start === digestInfo.backboneStart &&
-                    Math.abs(len - digestInfo.longestFragLen) <= 1) {
-                  idxLongest = i;
-                  break;
-                }
-              }
-
-              const cutA = cuts[idxLongest];                 // start of longest fragment
-              const cutB = cuts[(idxLongest + 1) % cuts.length]; // end of longest fragment
-
-              // The complementary arc (removed fragment) starts at cutB and ends at cutA
-              const shortStartCut = cutB;
-              const shortEndCut = cutA;
-
-              const siteStartForCut = (cut) => {
-                const enzObj = (cut.enz === 1 ? enz1 : enz2);
-                if (!enzObj || !enzObj.site) return null;
-                return (cut.pos - enzObj.cut5 + N) % N;
-              };
-
-              let leftSiteStart = siteStartForCut(shortStartCut);
-              let rightSiteStart = siteStartForCut(shortEndCut);
-
-              if (leftSiteStart != null && rightSiteStart != null) {
-                let leftSiteSeq = (shortStartCut.enz === 1 ? enz1.site : enz2.site);
-                let rightSiteSeq = (shortEndCut.enz === 1 ? enz1.site : enz2.site);
-
-                // Ensure linear order left -> right
-                if (rightSiteStart < leftSiteStart) {
-                  [leftSiteStart, rightSiteStart] = [rightSiteStart, leftSiteStart];
-                  [leftSiteSeq, rightSiteSeq] = [rightSiteSeq, leftSiteSeq];
+              if (cuts.length >= 2) {
+                // Find the cut pair that matches the recorded backbone fragment
+                let idxLongest = 0;
+                for (let i = 0; i < cuts.length; i++) {
+                  const start = cuts[i].pos;
+                  const end = cuts[(i + 1) % cuts.length].pos;
+                  const len = (end - start + N) % N || N;
+                  if (start === digestInfo.backboneStart &&
+                      Math.abs(len - digestInfo.longestFragLen) <= 1) {
+                    idxLongest = i;
+                    break;
+                  }
                 }
 
-                const leftSiteEnd = leftSiteStart + leftSiteSeq.length;
-                const rightSiteEnd = rightSiteStart + rightSiteSeq.length;
+                const cutA = cuts[idxLongest];                 // start of longest fragment
+                const cutB = cuts[(idxLongest + 1) % cuts.length]; // end of longest fragment
 
-                assembledSeq =
-                  vecSeq.slice(0, leftSiteStart) +
-                  leftSiteSeq +
-                  insSeq +
-                  rightSiteSeq +
-                  vecSeq.slice(rightSiteEnd);
-                assembledLen = assembledSeq.length;
+                // The complementary arc (removed fragment) starts at cutB and ends at cutA
+                const shortStartCut = cutB;
+                const shortEndCut = cutA;
+
+                const siteStartForCut = (cut) => {
+                  const enzObj = (cut.enz === 1 ? enz1 : enz2);
+                  if (!enzObj || !enzObj.site) return null;
+                  return (cut.pos - enzObj.cut5 + N) % N;
+                };
+
+                let leftSiteStart = siteStartForCut(shortStartCut);
+                let rightSiteStart = siteStartForCut(shortEndCut);
+
+                if (leftSiteStart != null && rightSiteStart != null) {
+                  let leftSiteSeq = (shortStartCut.enz === 1 ? enz1.site : enz2.site);
+                  let rightSiteSeq = (shortEndCut.enz === 1 ? enz1.site : enz2.site);
+
+                  // Ensure linear order left -> right
+                  if (rightSiteStart < leftSiteStart) {
+                    [leftSiteStart, rightSiteStart] = [rightSiteStart, leftSiteStart];
+                    [leftSiteSeq, rightSiteSeq] = [rightSiteSeq, leftSiteSeq];
+                  }
+
+                  const leftSiteEnd = leftSiteStart + leftSiteSeq.length;
+                  const rightSiteEnd = rightSiteStart + rightSiteSeq.length;
+
+                  assembledSeq =
+                    vecSeq.slice(0, leftSiteStart) +
+                    leftSiteSeq +
+                    insSeq +
+                    rightSiteSeq +
+                    vecSeq.slice(rightSiteEnd);
+                  assembledLen = assembledSeq.length;
+                } else {
+                  const fb = fallbackBackbonePlusInsert();
+                  assembledSeq = fb.seq;
+                  assembledLen = fb.len;
+                }
               } else {
                 const fb = fallbackBackbonePlusInsert();
                 assembledSeq = fb.seq;
                 assembledLen = fb.len;
               }
-            } else {
-              const fb = fallbackBackbonePlusInsert();
-              assembledSeq = fb.seq;
-              assembledLen = fb.len;
             }
           }
           // A3. No usable site information; fallback
@@ -1871,7 +2008,7 @@ if(n1 === 0 || n2 === 0){
           const enz = hasEnz1 ? enz1 : enz2;
           if (enz && enz.site) {
             const s = findRESites(vecSeq, enz.site);
-            if (s.length === 1) {
+            if (s.length === 1 && !userSelectedBackboneSeq) {
               const siteStart = s[0];
               const siteEnd = siteStart + enz.site.length;
               // Approximate model: site + insert + site at the single recognition locus
