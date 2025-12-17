@@ -256,15 +256,7 @@
   }
 </style>
 
-<div class="tabs" style="display:flex; align-items:center; justify-content:space-between; gap: 8px;">
-  <div style="flex: 1;"></div>
-  <div style="display:flex;gap:8px">
-    <button class="demo btn" id="demo-set-btn" type="button">Demo Set</button>
-    <button class="ghost btn" id="global-reset" type="button">Reset</button>
-  </div>
-</div>
-
-<section class="pane" style="position: relative; overflow: visible; margin-top: -25px;">
+<section class="pane" style="position: relative; overflow: visible;">
   <div style="position: relative; overflow: visible;">
       <div style="display: flex; align-items: center; justify-content: flex-start; gap: 12px; margin: 0 0 12px 0; position: relative; overflow: visible; flex-wrap: wrap;">
         <h3 style="font-size: 1.1rem; margin: 0;">Input Sequences</h3>
@@ -311,6 +303,10 @@ GCTAGCTAGCT...</pre>
               </span>
             </span>
           </label>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center; margin-left:auto; flex-shrink: 0;">
+          <button class="demo btn" id="demo-set-btn" type="button">Demo Set</button>
+          <button class="ghost btn" id="global-reset" type="button">Reset</button>
         </div>
       </div>
 
@@ -365,8 +361,8 @@ GCTAGCTAGCT...</pre>
     <h2>Primer Design Parameters</h2>
       <div class="param-grid">
         <div>
-          <label for="target-tm" style="display: flex; align-items: center; gap: 6px; position: relative; white-space: nowrap;">
-            <span style="white-space: nowrap;">Target Tm (°C):</span>
+          <label for="target-tm" class="aside" style="display: flex; align-items: center; gap: 6px; position: relative; overflow: visible;">
+            <span>Target Tm (°C)</span>
             <span class="help-icon" style="position: relative; display: inline-block; cursor: help; z-index: 1; flex-shrink: 0;">
               <span style="display: inline-block; width: 16px; height: 16px; line-height: 16px; text-align: center; border-radius: 50%; background: #6b7280; color: white; font-size: 0.7rem; font-weight: bold; transition: background 0.2s; position: relative; z-index: 1;">?</span>
               <span class="help-tooltip" style="position: absolute; top: calc(100% + 10px); left: 0; width: 280px; padding: 12px; background: #1f2937; color: #fff; border-radius: 8px; font-size: 0.85rem; line-height: 1.5; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; z-index: 999999 !important; box-shadow: 0 8px 24px rgba(0,0,0,0.4); pointer-events: none; white-space: normal;">
@@ -378,8 +374,8 @@ GCTAGCTAGCT...</pre>
           <input type="number" id="target-tm" value="55" min="40" max="80" step="1">
         </div>
         <div>
-          <label for="tm-tolerance" style="display: flex; align-items: center; gap: 6px; position: relative; white-space: nowrap;">
-            <span style="white-space: nowrap;">ΔTm (°C):</span>
+          <label for="tm-tolerance" class="aside" style="display: flex; align-items: center; gap: 6px; position: relative; overflow: visible;">
+            <span>ΔTm (°C)</span>
             <span class="help-icon" style="position: relative; display: inline-block; cursor: help; z-index: 1; flex-shrink: 0;">
               <span style="display: inline-block; width: 16px; height: 16px; line-height: 16px; text-align: center; border-radius: 50%; background: #6b7280; color: white; font-size: 0.7rem; font-weight: bold; transition: background 0.2s; position: relative; z-index: 1;">?</span>
               <span class="help-tooltip" style="position: absolute; top: calc(100% + 10px); left: 0; width: 280px; padding: 12px; background: #1f2937; color: #fff; border-radius: 8px; font-size: 0.85rem; line-height: 1.5; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; z-index: 999999 !important; box-shadow: 0 8px 24px rgba(0,0,0,0.4); pointer-events: none; white-space: normal;">
@@ -391,8 +387,8 @@ GCTAGCTAGCT...</pre>
           <input type="number" id="tm-tolerance" value="2.5" min="0" max="10" step="0.5">
         </div>
         <div>
-          <label for="primer-conc" style="display: flex; align-items: center; gap: 6px; position: relative; white-space: nowrap;">
-            <span style="white-space: nowrap;">Primer Conc. (nM):</span>
+          <label for="primer-conc" class="aside" style="display: flex; align-items: center; gap: 6px; position: relative; overflow: visible;">
+            <span>Primer Conc. (nM)</span>
             <span class="help-icon" style="position: relative; display: inline-block; cursor: help; z-index: 1; flex-shrink: 0;">
               <span style="display: inline-block; width: 16px; height: 16px; line-height: 16px; text-align: center; border-radius: 50%; background: #6b7280; color: white; font-size: 0.7rem; font-weight: bold; transition: background 0.2s; position: relative; z-index: 1;">?</span>
               <span class="help-tooltip" style="position: absolute; top: calc(100% + 10px); left: 0; width: 280px; padding: 12px; background: #1f2937; color: #fff; border-radius: 8px; font-size: 0.85rem; line-height: 1.5; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; z-index: 999999 !important; box-shadow: 0 8px 24px rgba(0,0,0,0.4); pointer-events: none; white-space: normal;">
@@ -404,8 +400,8 @@ GCTAGCTAGCT...</pre>
           <input type="number" id="primer-conc" value="500" min="50" max="2000" step="50">
         </div>
         <div>
-          <label for="na-conc" style="display: flex; align-items: center; gap: 6px; position: relative; white-space: nowrap;">
-            <span style="white-space: nowrap;">Na<sup>+</sup> Conc. (mM):</span>
+          <label for="na-conc" class="aside" style="display: flex; align-items: center; gap: 6px; position: relative; overflow: visible;">
+            <span>Na<sup>+</sup> Conc. (mM)</span>
             <span class="help-icon" style="position: relative; display: inline-block; cursor: help; z-index: 1; flex-shrink: 0;">
               <span style="display: inline-block; width: 16px; height: 16px; line-height: 16px; text-align: center; border-radius: 50%; background: #6b7280; color: white; font-size: 0.7rem; font-weight: bold; transition: background 0.2s; position: relative; z-index: 1;">?</span>
               <span class="help-tooltip" style="position: absolute; top: calc(100% + 10px); left: 0; width: 280px; padding: 12px; background: #1f2937; color: #fff; border-radius: 8px; font-size: 0.85rem; line-height: 1.5; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; z-index: 999999 !important; box-shadow: 0 8px 24px rgba(0,0,0,0.4); pointer-events: none; white-space: normal;">
@@ -417,8 +413,8 @@ GCTAGCTAGCT...</pre>
           <input type="number" id="na-conc" value="50" min="0" max="200" step="5">
         </div>
         <div>
-          <label for="mg-conc" style="display: flex; align-items: center; gap: 6px; position: relative; white-space: nowrap;">
-            <span style="white-space: nowrap;">Mg<sup>2+</sup> Conc. (mM):</span>
+          <label for="mg-conc" class="aside" style="display: flex; align-items: center; gap: 6px; position: relative; overflow: visible;">
+            <span>Mg<sup>2+</sup> Conc. (mM)</span>
             <span class="help-icon" style="position: relative; display: inline-block; cursor: help; z-index: 1; flex-shrink: 0;">
               <span style="display: inline-block; width: 16px; height: 16px; line-height: 16px; text-align: center; border-radius: 50%; background: #6b7280; color: white; font-size: 0.7rem; font-weight: bold; transition: background 0.2s; position: relative; z-index: 1;">?</span>
               <span class="help-tooltip" style="position: absolute; top: calc(100% + 10px); left: 0; width: 280px; padding: 12px; background: #1f2937; color: #fff; border-radius: 8px; font-size: 0.85rem; line-height: 1.5; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; z-index: 999999 !important; box-shadow: 0 8px 24px rgba(0,0,0,0.4); pointer-events: none; white-space: normal;">
@@ -430,8 +426,8 @@ GCTAGCTAGCT...</pre>
           <input type="number" id="mg-conc" value="2.0" min="0" max="10" step="0.5">
         </div>
         <div>
-          <label for="size-tolerance" style="display: flex; align-items: center; gap: 6px; position: relative; white-space: nowrap;">
-            <span style="white-space: nowrap;">Size Tolerance (bp):</span>
+          <label for="size-tolerance" class="aside" style="display: flex; align-items: center; gap: 6px; position: relative; overflow: visible;">
+            <span>Size Tolerance (bp)</span>
             <span class="help-icon" style="position: relative; display: inline-block; cursor: help; z-index: 1; flex-shrink: 0;">
               <span style="display: inline-block; width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 50%; background: #6b7280; color: white; font-size: 0.8rem; font-weight: bold; transition: background 0.2s; position: relative; z-index: 1;">?</span>
               <span class="help-tooltip" style="position: absolute; top: calc(100% + 10px); right: 0; width: 340px; padding: 14px; background: #1f2937; color: #fff; border-radius: 8px; font-size: 0.85rem; line-height: 1.6; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; z-index: 999999 !important; box-shadow: 0 8px 24px rgba(0,0,0,0.4); pointer-events: none; white-space: normal;">
@@ -451,8 +447,8 @@ GCTAGCTAGCT...</pre>
           <input type="number" id="size-tolerance" value="20" min="0" max="50" step="5">
         </div>
         <div class="overlap-input">
-          <label for="overlap-seq-fwd" style="display: flex; align-items: center; gap: 6px; position: relative; white-space: nowrap;">
-            <span style="white-space: nowrap;">Forward Overlap (optional):</span>
+          <label for="overlap-seq-fwd" class="aside" style="display: flex; align-items: center; gap: 6px; position: relative; overflow: visible;">
+            <span>Forward Overlap (optional)</span>
             <span class="help-icon" style="position: relative; display: inline-block; cursor: help; z-index: 1; flex-shrink: 0;">
               <span style="display: inline-block; width: 16px; height: 16px; line-height: 16px; text-align: center; border-radius: 50%; background: #6b7280; color: white; font-size: 0.7rem; font-weight: bold; transition: background 0.2s; position: relative; z-index: 1;">?</span>
               <span class="help-tooltip" style="position: absolute; top: calc(100% + 10px); left: 0; width: 320px; padding: 12px; background: #1f2937; color: #fff; border-radius: 8px; font-size: 0.85rem; line-height: 1.5; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; z-index: 999999 !important; box-shadow: 0 8px 24px rgba(0,0,0,0.4); pointer-events: none; white-space: normal;">
@@ -465,8 +461,8 @@ GCTAGCTAGCT...</pre>
           <input type="text" id="overlap-seq-fwd" placeholder="e.g., ATGCGTAGCTA" style="font-family: monospace; font-size: 0.85rem;">
         </div>
         <div class="overlap-input reverse-overlap">
-          <label for="overlap-seq-rev" style="display: flex; align-items: center; gap: 6px; position: relative; white-space: nowrap;">
-            <span style="white-space: nowrap;">Reverse Overlap (optional):</span>
+          <label for="overlap-seq-rev" class="aside" style="display: flex; align-items: center; gap: 6px; position: relative; overflow: visible;">
+            <span>Reverse Overlap (optional)</span>
             <span class="help-icon" style="position: relative; display: inline-block; cursor: help; z-index: 1; flex-shrink: 0;">
               <span style="display: inline-block; width: 16px; height: 16px; line-height: 16px; text-align: center; border-radius: 50%; background: #6b7280; color: white; font-size: 0.7rem; font-weight: bold; transition: background 0.2s; position: relative; z-index: 1;">?</span>
               <span class="help-tooltip" style="position: absolute; top: calc(100% + 10px); left: 0; width: 320px; padding: 12px; background: #1f2937; color: #fff; border-radius: 8px; font-size: 0.85rem; line-height: 1.5; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; z-index: 999999 !important; box-shadow: 0 8px 24px rgba(0,0,0,0.4); pointer-events: none; white-space: normal;">

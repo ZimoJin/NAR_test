@@ -2397,10 +2397,10 @@ function initInsertUpload() {
           </div>
         </div>
         <div></div>
-        <div class="insert-controls">
-          <button class="ghost btn sm insert-move-up-btn" type="button" title="Move up">▲</button>
-          <button class="ghost btn sm insert-move-down-btn" type="button" title="Move down">▼</button>
-          <button class="ghost btn sm remove-insert-btn" type="button" title="Delete" style="display: none;">✕</button>
+        <div class="insert-controls" style="width: 100%;">
+          <button class="ghost btn sm insert-move-up-btn" type="button" title="Move up" style="width: 100%; min-width: 32px; padding: 5px 8px; text-align: center;">▲</button>
+          <button class="ghost btn sm insert-move-down-btn" type="button" title="Move down" style="width: 100%; min-width: 32px; padding: 5px 8px; text-align: center;">▼</button>
+          <button class="ghost btn sm remove-insert-btn" type="button" title="Delete" style="display: none; width: 100%; min-width: 32px; padding: 5px 8px; text-align: center;">✕</button>
         </div>
       `;
       container.appendChild(newRow);
@@ -2650,6 +2650,7 @@ function updatePCRFragments(pcrForward, pcrReverse) {
     if (backboneSelectU) {
       backboneSelectU.innerHTML = '<option value="">Please enter vector sequence and PCR primers first</option>';
     }
+    if (pcrFragmentsInfo) pcrFragmentsInfo.style.display = 'none';
     window.currentPCRFragments = null;
     return;
   }
@@ -2660,6 +2661,7 @@ function updatePCRFragments(pcrForward, pcrReverse) {
       if (backboneSelectU) {
         backboneSelectU.innerHTML = '<option value="">Invalid vector sequence</option>';
       }
+      if (pcrFragmentsInfo) pcrFragmentsInfo.style.display = 'none';
       window.currentPCRFragments = null;
       return;
     }
@@ -2671,6 +2673,7 @@ function updatePCRFragments(pcrForward, pcrReverse) {
       if (backboneSelectU) {
         backboneSelectU.innerHTML = '<option value="">Primer format error</option>';
       }
+      if (pcrFragmentsInfo) pcrFragmentsInfo.style.display = 'none';
       window.currentPCRFragments = null;
       return;
     }
@@ -2711,6 +2714,7 @@ function updatePCRFragments(pcrForward, pcrReverse) {
       if (backboneSelectU) {
         backboneSelectU.innerHTML = '<option value="">Primers not found in sequence</option>';
       }
+      if (pcrFragmentsInfo) pcrFragmentsInfo.style.display = 'none';
       window.currentPCRFragments = null;
       return;
     }
@@ -2808,12 +2812,15 @@ function updatePCRFragments(pcrForward, pcrReverse) {
       pcrFragmentsSummary.textContent = `(${fragments.length} product(s) generated)`;
     }
     
+    if (pcrFragmentsInfo) pcrFragmentsInfo.style.display = 'block';
+    
   } catch (error) {
     console.error('Error updating PCR products:', error);
     const backboneSelectU = $('backbone-select-u');
     if (backboneSelectU) {
       backboneSelectU.innerHTML = '<option value="">Update failed</option>';
     }
+    if (pcrFragmentsInfo) pcrFragmentsInfo.style.display = 'none';
     window.currentPCRFragments = null;
   }
 }

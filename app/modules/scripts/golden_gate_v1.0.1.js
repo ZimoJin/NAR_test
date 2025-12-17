@@ -51,11 +51,16 @@ function initGoldenGate(container) {
 
   // Standard MW warning modal (instead of legacy OK-only popup)
   function showMWMessage(message) {
-    if (VIZ && VIZ.showMWWarnings) {
-      VIZ.showMWWarnings(container, [{ id: 'GG-MSG', message }], () => {}, () => {});
-      return;
+    const warningsBox = $('warnings-box');
+    if (warningsBox) {
+      warningsBox.innerHTML = ''; // Clear previous messages
+      warningsBox.style.display = 'block';
+      const p = document.createElement('p');
+      p.textContent = message;
+      warningsBox.appendChild(p);
+    } else {
+      showMWMessage(message);
     }
-    alert(message);
   }
 
   // Fallback core-primer pickers (app-main.js used to provide these globals).
@@ -1430,10 +1435,10 @@ function initGoldenGate(container) {
         </div>
       </div>
       <div></div>
-      <div class="frag-actions">
-        <button class="ghost btn sm up" type="button" title="Move up">↑</button>
-        <button class="ghost btn sm down" type="button" title="Move down">↓</button>
-        <button class="ghost btn sm del" type="button" title="Delete">×</button>
+      <div class="frag-actions" style="width: 100%;">
+        <button class="ghost btn sm up" type="button" title="Move up" style="width: 100%; min-width: 32px; padding: 5px 8px; text-align: center;">▲</button>
+        <button class="ghost btn sm down" type="button" title="Move down" style="width: 100%; min-width: 32px; padding: 5px 8px; text-align: center;">▼</button>
+        <button class="ghost btn sm del" type="button" title="Delete" style="width: 100%; min-width: 32px; padding: 5px 8px; text-align: center;">✕</button>
       </div>`;
     fragList.appendChild(wrap); renumberFrags(); scheduleSync();
   }
@@ -1912,8 +1917,17 @@ function initGoldenGate(container) {
         }
       };
 
-      if (warnings.length && VIZ && VIZ.showMWWarnings) {
-        VIZ.showMWWarnings(container, warnings, proceed, () => {});
+      if (warnings.length > 0) {
+        const warningsBox = $('warnings-box');
+        if (warningsBox) {
+          warningsBox.innerHTML = '';
+          warningsBox.style.display = 'block';
+          warnings.forEach(warning => {
+            const p = document.createElement('p');
+            p.textContent = warning.message;
+            warningsBox.appendChild(p);
+          });
+        }
       } else {
         proceed();
       }
@@ -2397,7 +2411,7 @@ function initQC(container) {
 
   /* ==================== UI: file loaders ==================== */
   function loadFileInto(fid,tid){
-    const f=container.querySelector('#'+fid).files[0];if(!f)return alert('Choose a file');
+    const f=container.querySelector('#'+fid).files[0];if(!f)return showMWMessage('Choose a file');
     const r=new FileReader();r.onload=e=>container.querySelector('#'+tid).value=e.target.result;r.readAsText(f);
   }
   const reVectorLoad = container.querySelector('#re-vector-load');

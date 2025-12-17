@@ -541,10 +541,10 @@ function initAddInsert() {
         </div>
       </div>
       <div></div>
-      <div class="insert-controls">
-        <button class="ghost btn sm insert-move-up-btn" type="button" title="Move up">▲</button>
-        <button class="ghost btn sm insert-move-down-btn" type="button" title="Move down">▼</button>
-        <button class="ghost btn sm remove-insert-btn" type="button" title="Delete" style="display: none;">✕</button>
+      <div class="insert-controls" style="width: 100%;">
+        <button class="ghost btn sm insert-move-up-btn" type="button" title="Move up" style="width: 100%; min-width: 32px; padding: 5px 8px; text-align: center;">▲</button>
+        <button class="ghost btn sm insert-move-down-btn" type="button" title="Move down" style="width: 100%; min-width: 32px; padding: 5px 8px; text-align: center;">▼</button>
+        <button class="ghost btn sm remove-insert-btn" type="button" title="Delete" style="display: none; width: 100%; min-width: 32px; padding: 5px 8px; text-align: center;">✕</button>
       </div>
     `;
     container.appendChild(newRow);
@@ -1194,9 +1194,21 @@ function initDesignButton() {
       window.currentAssembledName = vecName ? `${vecName}_Gibson` : 'Gibson_Assembly';
 
       };
-      if (warnings.length && VIZ && VIZ.showMWWarnings) {
-        VIZ.showMWWarnings(container, warnings, proceed, () => {});
-      } else {
+      const warningsBox = $('warnings-box');
+      if (warningsBox) {
+        warningsBox.innerHTML = '';
+        if (warnings.length > 0) {
+          warningsBox.style.display = 'block';
+          warnings.forEach(warning => {
+            const p = document.createElement('p');
+            p.textContent = warning.message;
+            warningsBox.appendChild(p);
+          });
+        } else {
+          warningsBox.style.display = 'none';
+        }
+      }
+      if (warnings.length === 0) {
         proceed();
       }
     } catch (error) {
@@ -2030,6 +2042,14 @@ function renderResults(results, vector, inserts) {
   `;
   leftCol.appendChild(overlapTableCell);
 
+  // Add the warnings-box here
+  const warningsBoxElement = document.createElement('div');
+  warningsBoxElement.id = 'warnings-box';
+  warningsBoxElement.className = 'warnings-box';
+  warningsBoxElement.style.display = 'none'; // Hidden by default
+  warningsBoxElement.style.marginTop = '10px';
+  leftCol.appendChild(warningsBoxElement);
+
   resultsContent.appendChild(leftCol);
 
   // Render gel section (right column)
@@ -2066,11 +2086,14 @@ function renderResults(results, vector, inserts) {
   // Assembly legend removed - diagram is self-explanatory
 
   // Show warnings/notes
-  if (results.notes.length > 0) {
-    const warningOut = overlapTableCell.querySelector('#warning-out');
-    if (warningOut) {
-      warningOut.innerHTML = results.notes.map(note => `<div>${note}</div>`).join('');
-    }
+  const warningsBox = $('warnings-box');
+  if (warningsBox && results.notes.length > 0) {
+    warningsBox.style.display = 'block';
+    results.notes.forEach(note => {
+      const p = document.createElement('p');
+      p.textContent = note;
+      warningsBox.appendChild(p);
+    });
   }
 
   // Show results
@@ -2549,25 +2572,16 @@ function renderGel(results, vector, inserts) {
  * @param {string} message - Warning message to display
  */
 function showWarning(message) {
-  const modal = $('warning-modal');
-  const messageEl = $('warning-message');
-  const okBtn = $('warning-ok-btn');
-  
-  if (!modal || !messageEl || !okBtn) {
-    // Fallback to alert if modal elements not found
+  const warningsBox = $('warnings-box');
+  if (warningsBox) {
+    warningsBox.innerHTML = ''; // Clear previous warnings
+    warningsBox.style.display = 'block';
+    const p = document.createElement('p');
+    p.textContent = message;
+    warningsBox.appendChild(p);
+  } else {
     alert(message);
-    return;
   }
-  
-  messageEl.textContent = message;
-  modal.style.display = 'flex';
-  
-  // Close modal on OK button click
-  const closeModal = () => {
-    modal.style.display = 'none';
-  };
-  
-  okBtn.onclick = closeModal;
   
   // Close modal on overlay click
   const overlay = modal.querySelector('.warning-modal-overlay');
