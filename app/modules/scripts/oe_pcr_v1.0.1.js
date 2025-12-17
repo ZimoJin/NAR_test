@@ -1196,8 +1196,8 @@ function createFragmentRow() {
   const tr = document.createElement('tr');
   tr.id = `fragment-row-${fragmentRowCount}`;
   tr.innerHTML = `
-    <td style="width: 2.5%;">${fragmentRowCount}</td>
-    <td id="dna-seq-cell-${fragmentRowCount}" style="width: 95%;">
+    <td style="width: 2%; vertical-align: top;">${fragmentRowCount}</td>
+    <td id="dna-seq-cell-${fragmentRowCount}" style="width: 65%;">
       <textarea id="frag-seq-${fragmentRowCount}" placeholder="Enter DNA sequence (FASTA format supported)..."></textarea>
       <div class="row end" style="margin-top:6px">
         <input type="file" id="file-frag-${fragmentRowCount}" accept=".fa,.fasta,.fas,.txt" style="display:none">
@@ -1206,7 +1206,7 @@ function createFragmentRow() {
         <button class="ghost btn" id="frag-upload-${fragmentRowCount}" type="button">Upload</button>
       </div>
     </td>
-    <td class="linker-column" style="display: none; width: 20%; position: relative; overflow: hidden;">
+    <td class="linker-column" style="display: none; width: 30%; position: relative; overflow: hidden;">
       <div style="display: flex; flex-direction: column; gap: 4px; position: relative;">
         <div style="display: flex; gap: 4px; align-items: center;">
           <input type="text" id="frag-linker-${fragmentRowCount}" placeholder="Linker (optional)" list="linker-suggestions-${fragmentRowCount}" style="flex: 1; min-width: 0;" autocomplete="off">
@@ -1244,7 +1244,7 @@ function createFragmentRow() {
         </div>
       </div>
     </td>
-    <td style="white-space: nowrap; vertical-align: top; width: 2.5%; padding: 4px 2px 4px 4px; text-align: left;">
+    <td style="white-space: nowrap; vertical-align: top; width: 3%; padding: 4px 2px 4px 4px; text-align: left;">
       <div class="frag-actions" style="width: 100%;">
         <button class="ghost btn sm up" onclick="moveFragmentRowUp(${fragmentRowCount})" title="Move up" type="button" style="width: 100%; min-width: 0;">▲</button>
         <button class="ghost btn sm down" onclick="moveFragmentRowDown(${fragmentRowCount})" title="Move down" type="button" style="width: 100%; min-width: 0;">▼</button>
@@ -1776,30 +1776,6 @@ function renderResults(primerResults, linkers) {
   btnContainer.className = 'row';
   btnContainer.style.cssText = 'margin-bottom: 12px;';
   
-  // Create download button
-  const downloadBtn = document.createElement('button');
-  downloadBtn.className = 'btn ghost';
-  downloadBtn.textContent = 'Download FASTA';
-  downloadBtn.onclick = () => {
-    // Create FASTA content with proper header
-    const fastaContent = formatFASTA(assembledSeq, fastaHeader);
-    
-    // Create download link with header as filename (sanitize for filesystem)
-    const safeFileName = fastaHeader.replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 100);
-    const fileName = safeFileName || 'assembled_sequence';
-    
-    const blob = new Blob([fastaContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${fileName}.fasta`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-  btnContainer.appendChild(downloadBtn);
-  
   // Create toggle button to show/hide sequence
   const toggleBtn = document.createElement('button');
   toggleBtn.className = 'btn ghost';
@@ -1822,6 +1798,61 @@ function renderResults(primerResults, linkers) {
     }
   };
   btnContainer.appendChild(toggleBtn);
+
+  // Create download dropdown and button
+  const downloadContainer = document.createElement('div');
+  downloadContainer.style.cssText = 'display:flex; gap:8px; align-items:center;';
+
+  const downloadSelect = document.createElement('select');
+  downloadSelect.id = 'download-type-select';
+  downloadSelect.className = 'form-select';
+  downloadSelect.style.cssText = 'padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line); font-size: 0.875rem;';
+  downloadSelect.innerHTML = `
+    <option value="sequence">Assembled Sequence</option>
+    <option value="primers">Primers</option>
+  `;
+  downloadContainer.appendChild(downloadSelect);
+
+  const downloadBtn = document.createElement('button');
+  downloadBtn.className = 'btn ghost';
+  downloadBtn.textContent = 'Download';
+  downloadContainer.appendChild(downloadBtn);
+  btnContainer.appendChild(downloadContainer);
+
+  downloadBtn.onclick = () => {
+    const selectedType = downloadSelect.value;
+    let fastaContent = '';
+    let fileName = '';
+
+    if (selectedType === 'sequence') {
+      fastaContent = formatFASTA(assembledSeq, fastaHeader);
+      fileName = fastaHeader.replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 100) || 'assembled_sequence';
+    } else if (selectedType === 'primers') {
+      // Generate FASTA for primers
+      const primerFastaEntries = [];
+      for (const result of primerResults) {
+        const fragName = result.fragment.name || `Fragment ${primerResults.indexOf(result) + 1}`;
+        if (result.F) {
+          primerFastaEntries.push(`>${fragName}-F\n${result.F.seq}`);
+        }
+        if (result.R) {
+          primerFastaEntries.push(`>${fragName}-R\n${result.R.seq}`);
+        }
+      }
+      fastaContent = primerFastaEntries.join('\n\n'); // Separate entries with double newline
+      fileName = 'oe_pcr_primers';
+    }
+
+    const blob = new Blob([fastaContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fileName}.fasta`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
   
   assembledDiv.appendChild(btnContainer);
   assembledDiv.appendChild(seqDisplayDiv);
@@ -1925,7 +1956,7 @@ function renderResults(primerResults, linkers) {
       tr.innerHTML = `
         <td rowspan="${result.R ? '2' : '1'}" class="fragment-name">${fragName}</td>
         <td><strong>${fragName}-F</strong></td>
-        <td class="mono"><code style="font-family:monospace; font-size:0.75rem; word-break:break-all;">${seqDisplay}</code></td>
+        <td class="mono" style="text-align: left;"><code style="font-family:monospace; font-size:0.75rem; word-break:break-all;">${seqDisplay}</code></td>
         <td style="text-align:center;">${result.F.len}</td>
         <td style="text-align:center;">${result.F.gc.toFixed(1)}%</td>
         <td style="text-align:center;">${coreTmStr}</td>
@@ -2047,7 +2078,7 @@ function renderResults(primerResults, linkers) {
       
       tr.innerHTML = `
         <td><strong>${fragName}-R</strong></td>
-        <td class="mono"><code style="font-family:monospace; font-size:0.75rem; word-break:break-all;">${seqDisplay}</code></td>
+        <td class="mono" style="text-align: left;"><code style="font-family:monospace; font-size:0.75rem; word-break:break-all;">${seqDisplay}</code></td>
         <td style="text-align:center;">${result.R.len}</td>
         <td style="text-align:center;">${result.R.gc.toFixed(1)}%</td>
         <td style="text-align:center;">${coreTmStr}</td>
@@ -2317,29 +2348,13 @@ function initOEPCRModule() {
     toggleLinkerBtn.addEventListener('click', () => {
       linkerVisible = !linkerVisible;
       const linkerColumns = document.querySelectorAll('.linker-column');
-      const dnaSeqHeader = document.getElementById('dna-seq-header');
-      const dnaSeqCells = document.querySelectorAll('[id^="dna-seq-cell-"]');
       
       linkerColumns.forEach(col => {
         col.style.display = linkerVisible ? '' : 'none';
       });
       
-      // Adjust DNA Sequence column width when linker is shown/hidden
-      if (linkerVisible) {
-        // DNA Sequence column becomes narrower to make room for linker
-        // 2.5% (#) + 75% (DNA) + 20% (Linker) + 2.5% (Action) = 100%
-        if (dnaSeqHeader) dnaSeqHeader.style.width = '75%';
-        dnaSeqCells.forEach(cell => {
-          cell.style.width = '75%';
-        });
-      } else {
-        // DNA Sequence column returns to full width
-        // 2.5% (#) + 95% (DNA) + 2.5% (Action) = 100%
-        if (dnaSeqHeader) dnaSeqHeader.style.width = '95%';
-        dnaSeqCells.forEach(cell => {
-          cell.style.width = '95%';
-        });
-      }
+      // Column widths remain constant: 2% (#) + 65% (DNA) + 30% (Linker) + 3% (Action) = 100%
+      // The linker column visibility is controlled by display property only
       
       toggleLinkerBtn.textContent = linkerVisible ? 'Hide Linker' : 'Show Linker';
     });
